@@ -11,7 +11,6 @@ const HeaderStyled = styled.header`
 
   h1 {
     margin: 0;
-    // font-size: 1.5rem;
     font-weight: 200;
     padding-left: 0.5rem;
   }
@@ -23,22 +22,19 @@ const HeaderStyled = styled.header`
   }
 
   .icon {
-    font-size: 2rem;
-    // font-weight: 300;
   }
 
   .bell {
-    font-size: 1.75rem;
   }
 `
 
 const Header = () => {
   return (
     <HeaderStyled>
-      <h1>Recipe app</h1>
+      <h1 className="fsize-3">Recipe app</h1>
       <div className="icons-wrapper">
-        <BsBell className="icon bell" />
-        <FiMenu className="icon" />
+        <BsBell className="icon bell fsize-2" />
+        <FiMenu className="icon fsize-2" />
       </div>
     </HeaderStyled>
   )

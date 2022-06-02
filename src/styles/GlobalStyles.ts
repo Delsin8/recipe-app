@@ -56,6 +56,9 @@ body {
         align-items: center;
     }
 
+    .gap-tiny {
+        gap: 0.25rem;
+    }
     .gap-small {
         gap: 0.5rem;
     }
@@ -66,6 +69,10 @@ body {
         gap: 1rem;
     }
 
+    .wrap {
+        flex-wrap: wrap;
+    }
+
     // 
     .text-center {
         text-align: center;
@@ -74,6 +81,27 @@ body {
     // margins
     .margin-top-4 {
         margin-top: 1rem;
+    }
+
+    // sizes
+    .fsize-1 {
+        font-size: 1rem;
+    }
+    .fsize-2 {
+        font-size: 1.25rem;
+    }
+    .fsize-3 {
+        font-size: 1.5rem;
+    }
+
+    // pointer
+    .pointer {
+        cursor: pointer;
+    }
+
+    // text decorations
+    .text-underline {
+        text-decoration: underline;
     }
 }
 `

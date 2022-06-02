@@ -11,10 +11,6 @@ const lorem =
   'Lorem ipsum dolor sit amet consectetur adipisicing elit. Delectus natus sapiente quo quod? Ut ipsum tenetur suscipit recusandae dignissimos ducimus natus voluptas error voluptatum id sint, eveniet hic quibusdam! Praesentium?'
 
 const RecipePageStyled = styled.div`
-  display: flex;
-  flex-direction: column;
-  gap: 1rem;
-
   .t {
     position: relative;
     width: 100%;
@@ -132,7 +128,7 @@ const RecipePageStyled = styled.div`
 const RecipePage = () => {
   return (
     <Layout>
-      <RecipePageStyled>
+      <RecipePageStyled className="content">
         <div className="t">
           <img src="https://www.zastavki.com/pictures/1280x720/2009/Food___Pizza_Pizza_011915_26.jpg" />
           <div className="s">

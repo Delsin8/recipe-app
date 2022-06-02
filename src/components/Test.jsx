@@ -1,6 +1,7 @@
 import { useEffect, useState } from 'react'
 import db from '../app/firebase'
 import { getFirestore, collection, getDocs } from 'firebase/firestore/lite'
+import styled from 'styled-components'
 
 export const Test = () => {
   const [data, setData] = useState([])
@@ -16,13 +17,17 @@ export const Test = () => {
     fetchRecipes()
   }, [])
 
+  const D = styled.div`
+    color: ${props => props.theme.colors.red};
+  `
+
   return (
-    <div>
+    <D>
       {data.map(d => (
         <div>
           {d.name} {d.cooking_time} {d.difficulty}
         </div>
       ))}
-    </div>
+    </D>
   )
 }

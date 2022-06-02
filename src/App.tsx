@@ -1,12 +1,14 @@
 import React from 'react'
 import { ThemeProvider } from 'styled-components'
-import { Test } from './components/Test'
-import theme from './Theme'
+import theme from './styles/Theme'
+import RecipePage from './pages/Recipe/RecipePage'
+import GlobalStyles from './styles/GlobalStyles'
 
 function App() {
   return (
     <ThemeProvider theme={theme}>
-      <Test />
+      <GlobalStyles />
+      <RecipePage />
     </ThemeProvider>
   )
 }

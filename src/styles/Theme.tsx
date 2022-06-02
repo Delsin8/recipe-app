@@ -16,7 +16,9 @@ const theme = {
     xl: '1200px',
     xxl: '1400px',
   },
-  borderRadius: {},
+  borderRadius: {
+    default: '16px',
+  },
 }
 
 export default theme

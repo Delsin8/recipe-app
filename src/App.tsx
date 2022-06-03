@@ -6,6 +6,7 @@ import GlobalStyles from './styles/GlobalStyles'
 import Header from './components/header'
 import { Route, Routes } from 'react-router-dom'
 import RecipesPage from './pages/Recipes/RecipesPage'
+import UserPage from './pages/User/UserPage'
 
 function App() {
   return (
@@ -15,6 +16,7 @@ function App() {
       <Routes>
         <Route path="/recipe" element={<RecipePage />} />
         <Route path="/recipes" element={<RecipesPage />} />
+        <Route path="/user" element={<UserPage />} />
       </Routes>
     </ThemeProvider>
   )

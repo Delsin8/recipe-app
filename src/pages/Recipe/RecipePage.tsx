@@ -1,5 +1,5 @@
 import styled from 'styled-components'
-import Button from '../../components/Button'
+import Button from '../../components/button'
 import Layout from '../../components/layout'
 import { BsClockHistory } from 'react-icons/bs'
 import { IoPeopleOutline } from 'react-icons/io5'
@@ -188,7 +188,7 @@ const RecipePage = () => {
         </div>
         <div>
           Author:{' '}
-          <Link to="" className="link">
+          <Link to="" className="link frame">
             Username
           </Link>
         </div>

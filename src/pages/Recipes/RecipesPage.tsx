@@ -5,6 +5,8 @@ import { BsClockHistory, BsTag } from 'react-icons/bs'
 import { GiCook } from 'react-icons/gi'
 import { GrCertificate } from 'react-icons/gr'
 import { useState } from 'react'
+import Recipe from '../../components/recipe'
+import Recipes from '../../components/recipe/Recipes'
 
 const RecipesPageStyled = styled.div`
   .filter {
@@ -52,10 +54,6 @@ const RecipesPageStyled = styled.div`
   }
 
   .recipes {
-    display: grid;
-    grid-template-columns: repeat(1fr, 2);
-    grid-gap: 0.5rem;
-
     img {
       width: 100%;
       height: 100%;
@@ -150,14 +148,7 @@ const RecipesPage = () => {
           )}
         </div>
         {/* recipes */}
-        <div className="recipes">
-          {[0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10].map(r => (
-            <div key={`r_${r}`} className="flex direction-column align-center">
-              <img src="https://www.zastavki.com/pictures/1280x720/2009/Food___Pizza_Pizza_011915_26.jpg" />
-              <div>Dish name</div>
-            </div>
-          ))}
-        </div>
+        <Recipes recipes={[{ name: 'asd' }]} />
       </RecipesPageStyled>
     </Layout>
   )

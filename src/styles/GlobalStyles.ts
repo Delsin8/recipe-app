@@ -33,11 +33,15 @@ body {
 
     // link
     .link {
-        background: #F3DFC1;
-        padding: 1px 2px;
         color: black;
         text-decoration: none;
     }
+
+    //frame
+    .frame {
+        background: #F3DFC1;
+        padding: 1px 2px;
+    } 
 
     // flex
     .flex {
@@ -55,6 +59,9 @@ body {
     .align-center {
         align-items: center;
     }
+    .align-end {
+        align-items: end;
+    }
 
     .gap-tiny {
         gap: 0.25rem;
@@ -71,6 +78,11 @@ body {
 
     .wrap {
         flex-wrap: wrap;
+    }
+
+    // display
+    .inline-block {
+        display: inline-block;
     }
 
     // 

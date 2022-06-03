@@ -10,6 +10,7 @@ import UserPage from './pages/User/UserPage'
 import CommentsPage from './pages/Comments/CommentsPage'
 import NotificationsPage from './pages/Notifications/NotificationsPage'
 import HomePage from './pages/Home/HomePage'
+import SigninPage from './pages/Auth/SigninPage'
 
 function App() {
   return (
@@ -22,6 +23,7 @@ function App() {
         <Route path="/recipes" element={<RecipesPage />} />
         <Route path="/comments" element={<CommentsPage />} />
         <Route path="/user" element={<UserPage />} />
+        <Route path="/signin" element={<SigninPage />} />
         <Route path="/notifications" element={<NotificationsPage />} />
       </Routes>
     </ThemeProvider>

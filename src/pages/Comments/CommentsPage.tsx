@@ -1,5 +1,6 @@
 import styled from 'styled-components'
 import Comment from '../../components/comment'
+import Layout from '../../components/layout'
 import { IComment } from '../../types'
 
 const CommentsPageStyled = styled.div``
@@ -21,11 +22,13 @@ const CommentsPage = () => {
   ]
 
   return (
-    <CommentsPageStyled>
-      {comments.map(c => (
-        <Comment key={`c_${c._id}`} {...c} />
-      ))}
-    </CommentsPageStyled>
+    <Layout className="content">
+      <CommentsPageStyled>
+        {comments.map(c => (
+          <Comment key={`c_${c._id}`} {...c} />
+        ))}
+      </CommentsPageStyled>
+    </Layout>
   )
 }
 

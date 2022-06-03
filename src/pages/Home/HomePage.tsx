@@ -17,10 +17,10 @@ const recipe: IRecipe = {
 const HomePage = () => {
   return (
     <Layout>
-      <HomePageStyled className="flex direction-column gap-small">
+      <HomePageStyled className="content">
         <div>
           <h3 className="weight-extra-light">Last added</h3>
-          <Recipe recipe={recipe} />
+          <Recipe {...recipe} />
         </div>
         <div>
           <h3 className="inline-block weight-regular frame">Vegan recipes</h3>
@@ -32,7 +32,7 @@ const HomePage = () => {
         </div>
         <div>
           <h3 className="weight-extra-light">Most popular</h3>
-          <Recipe recipe={recipe} />
+          <Recipe {...recipe} />
         </div>
         <div>
           <h3 className="inline-block weight-regular frame">

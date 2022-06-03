@@ -10,23 +10,26 @@ const ButtonStyled = styled.button`
 
 interface IButton {
   textColor: keyof typeof theme.colors
-  background: keyof typeof theme.colors
+  background?: keyof typeof theme.colors
   padding?: string
   fontSize?: string
   borderRadius?: keyof typeof theme.borderRadius
   borderColor?: keyof typeof theme.colors
   width?: string
+  gradient?: string
 }
 
 const Button = styled(ButtonStyled)<IButton>`
-  background: ${({ theme, background }) => theme.colors[background]};
   color: ${({ theme, textColor }) => theme.colors[textColor]};
+  background: ${({ theme, background }) =>
+    background && theme.colors[background]};
   ${({ padding }) => padding && `padding: ${padding};`}
   ${({ fontSize }) => fontSize && `font-size: ${fontSize};`}
   ${({ borderRadius }) => borderRadius && `border-radius: ${borderRadius};`}
   ${({ theme, borderColor }) =>
     borderColor && `border: 1px solid ${theme.colors[borderColor]};`}
   ${({ width }) => width && `width: ${width};`}
+  ${({ gradient }) => gradient && `background: ${gradient};`}
 `
 
 export default Button

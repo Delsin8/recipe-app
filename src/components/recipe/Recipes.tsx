@@ -18,7 +18,7 @@ const Recipes: React.FC<IRecipes> = ({ recipes }) => {
   return (
     <RecipesStyled>
       {recipes.map(r => (
-        <Recipe key={uuidv4()} recipe={r} />
+        <Recipe key={uuidv4()} {...r} />
       ))}
     </RecipesStyled>
   )

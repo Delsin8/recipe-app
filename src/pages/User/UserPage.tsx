@@ -3,6 +3,7 @@ import Layout from '../../components/layout'
 import { BiEditAlt } from 'react-icons/bi'
 import Recipe from '../../components/recipe'
 import Recipes from '../../components/recipe/Recipes'
+import Button from '../../components/button'
 
 const UserPageStyled = styled.div`
   .photo {
@@ -41,12 +42,16 @@ const UserPageStyled = styled.div`
       font-size: 1.25rem;
     }
   }
+
+  h3 {
+    margin: 0 0 0.25rem 0;
+  }
 `
 
 const UserPage = () => {
   return (
     <Layout>
-      <UserPageStyled>
+      <UserPageStyled className="content">
         <div className="flex gap-small">
           <div className="photo">
             <img src="https://www.zastavki.com/pictures/1280x720/2009/Food___Pizza_Pizza_011915_26.jpg" />
@@ -66,10 +71,25 @@ const UserPage = () => {
           </div>
         </div>
         {/* recipes */}
-        <h3 className="inline-block frame">Featured recipes</h3>
-        <Recipes recipes={[{ name: 'd' }, { name: 'd' }, { name: 'd' }]} />
-        <h3 className="inline-block frame">Last added to collection</h3>
-        <Recipes recipes={[{ name: 'd' }]} />
+        <div>
+          <h3 className="inline-block frame">Featured recipes</h3>
+          <Recipes recipes={[{ name: 'd' }, { name: 'd' }, { name: 'd' }]} />
+        </div>
+        <div>
+          <h3 className="inline-block frame">Last added to collection</h3>
+          <Recipes recipes={[{ name: 'd' }]} />
+        </div>
+        <div className="text-center">
+          <Button
+            textColor="wheat"
+            background="teal"
+            width="50%"
+            fontSize="1rem"
+            padding=".3 rem 0"
+          >
+            All recipes
+          </Button>
+        </div>
       </UserPageStyled>
     </Layout>
   )

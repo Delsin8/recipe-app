@@ -7,6 +7,7 @@ import Header from './components/header'
 import { Route, Routes } from 'react-router-dom'
 import RecipesPage from './pages/Recipes/RecipesPage'
 import UserPage from './pages/User/UserPage'
+import CommentsPage from './pages/Comments/CommentsPage'
 
 function App() {
   return (
@@ -16,6 +17,7 @@ function App() {
       <Routes>
         <Route path="/recipe" element={<RecipePage />} />
         <Route path="/recipes" element={<RecipesPage />} />
+        <Route path="/comments" element={<CommentsPage />} />
         <Route path="/user" element={<UserPage />} />
       </Routes>
     </ThemeProvider>

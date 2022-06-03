@@ -4,8 +4,8 @@ import { ImEye, ImEyeBlocked } from 'react-icons/im'
 import { BsClockHistory, BsTag } from 'react-icons/bs'
 import { GiCook } from 'react-icons/gi'
 import { GrCertificate } from 'react-icons/gr'
+import { IoPeopleOutline } from 'react-icons/io5'
 import { useState } from 'react'
-import Recipe from '../../components/recipe'
 import Recipes from '../../components/recipe/Recipes'
 
 const RecipesPageStyled = styled.div`
@@ -60,10 +60,26 @@ const RecipesPageStyled = styled.div`
       border-radius: 1rem;
     }
   }
+
+  .user-search {
+    padding-bottom: 0.25rem;
+    border-bottom: 1px solid grey;
+
+    input {
+      background: none;
+      outline: none;
+      border: none;
+
+      &::placeholder {
+        color: black;
+        opacity: 0.6;
+      }
+    }
+  }
 `
 
 const RecipesPage = () => {
-  const [filterOpen, setFilterOpen] = useState(false)
+  const [filterOpen, setFilterOpen] = useState(true)
 
   return (
     <Layout>
@@ -140,6 +156,10 @@ const RecipesPage = () => {
                 <div className="pointer text-underline">
                   Approval rating: 80% and higher
                 </div>
+              </div>
+              <div className="filter-section user-search flex align-center gap-medium">
+                <IoPeopleOutline className="fsize-3" />
+                <input placeholder="Search by user" />
               </div>
               <div className="text-center" onClick={() => setFilterOpen(false)}>
                 Hide

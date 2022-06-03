@@ -96,6 +96,16 @@ body {
     }
 
     // sizes
+    .fsize-negative-2 {
+        font-size: 0.75rem;
+    }
+    .fsize-negative-3 {
+        font-size: 0.5rem;
+    }
+    .fsize-negative-4 {
+        font-size: 0.25rem;
+    }
+    
     .fsize-1 {
         font-size: 1rem;
     }

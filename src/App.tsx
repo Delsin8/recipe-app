@@ -8,6 +8,8 @@ import { Route, Routes } from 'react-router-dom'
 import RecipesPage from './pages/Recipes/RecipesPage'
 import UserPage from './pages/User/UserPage'
 import CommentsPage from './pages/Comments/CommentsPage'
+import NotificationsPage from './pages/Notifications/NotificationsPage'
+import HomePage from './pages/Home/HomePage'
 
 function App() {
   return (
@@ -15,10 +17,12 @@ function App() {
       <GlobalStyles />
       <Header />
       <Routes>
+        <Route path="/" element={<HomePage />} />
         <Route path="/recipe" element={<RecipePage />} />
         <Route path="/recipes" element={<RecipesPage />} />
         <Route path="/comments" element={<CommentsPage />} />
         <Route path="/user" element={<UserPage />} />
+        <Route path="/notifications" element={<NotificationsPage />} />
       </Routes>
     </ThemeProvider>
   )

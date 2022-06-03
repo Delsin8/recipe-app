@@ -116,6 +116,20 @@ body {
         font-size: 1.5rem;
     }
 
+    // font weights
+    .weight-extra-light {
+        font-weight: 200;
+    }
+    .weight-light {
+        font-weight: 300;
+    }
+    .weight-regular {
+        font-weight: 400;
+    }
+    .weight-medium {
+        font-weight: 500;
+    }
+
     // pointer
     .pointer {
         cursor: pointer;

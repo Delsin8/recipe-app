@@ -5,8 +5,13 @@ import { BsClockHistory, BsTag } from 'react-icons/bs'
 import { GiCook } from 'react-icons/gi'
 import { GrCertificate } from 'react-icons/gr'
 import { IoPeopleOutline } from 'react-icons/io5'
-import { useState } from 'react'
+import { useEffect, useState } from 'react'
 import Recipes from '../../components/recipe/Recipes'
+import { IRecipe } from '../../types'
+
+// firestore
+import { collection, getDocs, DocumentData } from 'firebase/firestore'
+import db from '../../app/firebase'
 
 const RecipesPageStyled = styled.div`
   .filter {
@@ -80,9 +85,35 @@ const RecipesPageStyled = styled.div`
 
 const RecipesPage = () => {
   const [filterOpen, setFilterOpen] = useState(true)
+  const [recipes, setRecipes] = useState<IRecipe[]>([])
+  const [loading, setLoading] = useState(true)
+
+  useEffect(() => {
+    const fetchRecipes = async () => {
+      const recipesCollection = collection(db, 'recipes')
+      const recipeSnapshot = await getDocs(recipesCollection)
+
+      const result = recipeSnapshot.docs.map(async (doc: DocumentData) => {
+        const ingredientSnapshot = await getDocs(
+          collection(doc.ref, 'ingredients')
+        )
+        const ingredients = ingredientSnapshot.docs.map(i => i.data())
+        const recipe: IRecipe = {
+          ...doc.data(),
+          ingredients,
+        }
+        return recipe
+      })
+      Promise.all(result).then(data => setRecipes(data))
+    }
+
+    fetchRecipes().then(() => setLoading(false))
+  }, [])
+
+  if (loading) return <div>Loading</div>
 
   return (
-    <Layout>
+    <Layout onClick={() => console.log(recipes)}>
       <RecipesPageStyled className="content">
         <div>
           <div
@@ -168,7 +199,8 @@ const RecipesPage = () => {
           )}
         </div>
         {/* recipes */}
-        <Recipes recipes={[{ name: 'asd' }]} />
+        <Recipes recipes={recipes} />
+        {/* <Test /> */}
       </RecipesPageStyled>
     </Layout>
   )

@@ -12,6 +12,9 @@ const HomePageStyled = styled.div`
 
 const recipe: IRecipe = {
   name: 'Very tasty looking pizza',
+  cooking_time: 45,
+  difficulty: 'd',
+  id: '1',
 }
 
 const HomePage = () => {

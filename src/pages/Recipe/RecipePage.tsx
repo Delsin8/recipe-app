@@ -5,7 +5,20 @@ import { BsClockHistory } from 'react-icons/bs'
 import { IoPeopleOutline } from 'react-icons/io5'
 import { GoThumbsup, GoThumbsdown } from 'react-icons/go'
 
-import { Link } from 'react-router-dom'
+import { Link, useParams } from 'react-router-dom'
+import { IRecipe } from '../../types'
+import { useEffect, useState } from 'react'
+
+import { v4 as uuidv4 } from 'uuid'
+
+import {
+  collection,
+  doc,
+  DocumentData,
+  getDoc,
+  getDocs,
+} from 'firebase/firestore'
+import db from '../../app/firebase'
 
 const lorem =
   'Lorem ipsum dolor sit amet consectetur adipisicing elit. Delectus natus sapiente quo quod? Ut ipsum tenetur suscipit recusandae dignissimos ducimus natus voluptas error voluptatum id sint, eveniet hic quibusdam! Praesentium?'
@@ -97,7 +110,7 @@ const RecipePageStyled = styled.div`
     }
 
     h4 {
-      margin-top: 0;
+      margin: 0 0 0.75rem 0;
     }
   }
 
@@ -126,21 +139,62 @@ const RecipePageStyled = styled.div`
 `
 
 const RecipePage = () => {
+  const [recipe, setRecipe] = useState<IRecipe>()
+  const [loading, setLoading] = useState(true)
+  const { id } = useParams()
+
+  useEffect(() => {
+    const fetchRecipe = async () => {
+      const recipeDoc = doc(db, `recipes/${id}`)
+
+      const snapshot: IRecipe = await getDoc(recipeDoc).then(
+        async (r: DocumentData) => {
+          const ingredientCol = collection(r.ref, 'ingredients')
+          const ingredientsSnapshot = await getDocs(ingredientCol)
+          const ingredients = ingredientsSnapshot.docs.map(i => i.data())
+
+          const stepCol = collection(r.ref, 'steps')
+          const stepsSnapshot = await getDocs(stepCol)
+          const steps = stepsSnapshot.docs.map(i => i.data())
+
+          const tipCol = collection(r.ref, 'tips')
+          const tipsSnapshot = await getDocs(tipCol)
+          const tips = tipsSnapshot.docs.map(i => i.data())
+
+          const result: IRecipe = { ...r.data(), ingredients, steps, tips }
+          return result
+        }
+      )
+
+      // const snapshot: DocumentData = await getDoc(recipeDoc)
+      // const data = snapshot.data()
+      // const recipeData = snapshot.data()
+      console.log(snapshot)
+      if (snapshot) {
+        setRecipe(snapshot)
+      } else console.log('Incorrect id of the recipe')
+    }
+
+    fetchRecipe().then(() => setLoading(false))
+  }, [])
+
+  if (loading) return <div>Loading</div>
+
   return (
     <Layout>
       <RecipePageStyled className="content">
         <div className="t">
           <img src="https://www.zastavki.com/pictures/1280x720/2009/Food___Pizza_Pizza_011915_26.jpg" />
           <div className="s">
-            <div className="first">Dish Name</div>
-            <div className="second">Difficulty: Easy to make</div>
+            <div className="first">{recipe?.name}</div>
+            <div className="second">Difficulty: {recipe?.difficulty}</div>
           </div>
           {/* clock, portion */}
         </div>
         <div className="flex gap-medium justify-center">
           <div className="flex align-center gap-small">
             <BsClockHistory />
-            <div>10m of cooking</div>
+            <div>{recipe?.cooking_time}m of cooking</div>
           </div>
           <div className="flex align-center gap-small">
             <IoPeopleOutline />
@@ -161,12 +215,19 @@ const RecipePage = () => {
         {/* ingredients */}
         <div className="ingredients-section">
           <h3>Ingredients</h3>
-          {['Potato', 'Tomato', 'Fried cucumber'].map(i => (
-            <div className="ingredient" key={i}>
-              <div>{i}</div>
-              <div>100g</div>
-            </div>
-          ))}
+          {recipe?.ingredients && recipe.ingredients.length > 0 ? (
+            recipe?.ingredients.map(i => (
+              <div className="ingredient" key={uuidv4()}>
+                <div>{i.name}</div>
+                <div>
+                  {i.amount}
+                  {i.measure_method}
+                </div>
+              </div>
+            ))
+          ) : (
+            <div>Author didn't provide ingredient list</div>
+          )}
         </div>
         <div className="text-center">
           Number of servings{' '}
@@ -178,12 +239,16 @@ const RecipePage = () => {
         <div className="steps-section">
           <h4>Step-by-step guide</h4>
           <div className="flex direction-column gap-medium">
-            {[0, 1, 22].map(s => (
-              <div key={`step_${s}`} className="step">
-                <div>{lorem}</div>
-                <div className="step-order">{s}</div>
-              </div>
-            ))}
+            {recipe?.steps && recipe.steps.length > 0 ? (
+              recipe?.steps.map((s, index) => (
+                <div key={uuidv4()} className="step">
+                  <div>{s.body}</div>
+                  <div className="step-order">{index + 1}</div>
+                </div>
+              ))
+            ) : (
+              <div>Author didn't describe step-by-step guide</div>
+            )}
           </div>
         </div>
         <div>
@@ -201,12 +266,16 @@ const RecipePage = () => {
           </div>
         </div>
         <div className="tips-section">
-          <h3>Tips</h3>
-          <ul>
-            {[0, 1, 2].map(l => (
-              <li key={`l_${l}`}>{lorem}</li>
-            ))}
-          </ul>
+          {recipe?.tips && recipe.tips.length > 0 && (
+            <>
+              <h3>Tips</h3>
+              <ul>
+                {recipe.tips.map(l => (
+                  <li key={`l_${l}`}>{lorem}</li>
+                ))}
+              </ul>
+            </>
+          )}
         </div>
         <div className="text-center">
           <Button

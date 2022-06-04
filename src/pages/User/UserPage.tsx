@@ -54,7 +54,7 @@ const UserPage = () => {
       <UserPageStyled className="content">
         <div className="flex gap-small">
           <div className="photo">
-            <img src="https://www.zastavki.com/pictures/1280x720/2009/Food___Pizza_Pizza_011915_26.jpg" />
+            <img src="" />
             <div className="upload-picture">Upload picture</div>
           </div>
           <div className="info-section flex direction-column">
@@ -73,11 +73,11 @@ const UserPage = () => {
         {/* recipes */}
         <div>
           <h3 className="inline-block frame">Featured recipes</h3>
-          <Recipes recipes={[{ name: 'd' }, { name: 'd' }, { name: 'd' }]} />
+          {/* <Recipes recipes={[{ name: 'd' },/ { name: 'd' }, { name: 'd' }]} /> */}
         </div>
         <div>
           <h3 className="inline-block frame">Last added to collection</h3>
-          <Recipes recipes={[{ name: 'd' }]} />
+          {/* <Recipes recipes={[{ name: 'd' }]} /> */}
         </div>
         <div className="text-center">
           <Button

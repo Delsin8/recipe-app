@@ -17,6 +17,7 @@ interface IButton {
   borderColor?: keyof typeof theme.colors
   width?: string
   gradient?: string
+  cursor?: string
 }
 
 const Button = styled(ButtonStyled)<IButton>`
@@ -30,6 +31,7 @@ const Button = styled(ButtonStyled)<IButton>`
     borderColor && `border: 1px solid ${theme.colors[borderColor]};`}
   ${({ width }) => width && `width: ${width};`}
   ${({ gradient }) => gradient && `background: ${gradient};`}
+  ${({ cursor }) => (cursor ? `cursor: ${cursor};` : 'cursor: pointer;')}
 `
 
 export default Button

@@ -161,7 +161,13 @@ const RecipePage = () => {
           const tipsSnapshot = await getDocs(tipCol)
           const tips = tipsSnapshot.docs.map(i => i.data())
 
-          const result: IRecipe = { ...r.data(), ingredients, steps, tips }
+          const result: IRecipe = {
+            ...r.data(),
+            id: r.id,
+            ingredients,
+            steps,
+            tips,
+          }
           return result
         }
       )
@@ -277,7 +283,7 @@ const RecipePage = () => {
             </>
           )}
         </div>
-        <div className="text-center">
+        <Link to={`/comments/${recipe?.id}`} className="text-center">
           <Button
             textColor="wheat"
             background="darkPurple"
@@ -285,7 +291,7 @@ const RecipePage = () => {
           >
             Comments
           </Button>
-        </div>
+        </Link>
       </RecipePageStyled>
     </Layout>
   )

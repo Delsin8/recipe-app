@@ -5,6 +5,7 @@ import { IoLockClosedOutline } from 'react-icons/io5'
 import Button from '../../components/button'
 import { signinWithEmailAndPassword } from '../../app/firebase'
 import { useState } from 'react'
+import { Link } from 'react-router-dom'
 
 const gradient =
   'linear-gradient(90deg, rgba(36,106,115,1) 0%, rgba(134,80,0,1) 100%)'
@@ -47,9 +48,9 @@ const SigninPage = () => {
             Login
           </Button>
         </div>
-        <div className="text-underline pointer fsize-negative-2">
+        <Link to="/signup" className="text-underline pointer fsize-negative-2">
           Don't have an account?
-        </div>
+        </Link>
       </AuthStyled>
     </Layout>
   )

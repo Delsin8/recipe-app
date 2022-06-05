@@ -31,6 +31,11 @@ body {
     background-color: #DDBEA8;
     font-family: Raleway;
 
+    a {
+        color: black;
+        text-decoration: none;
+    }
+
     // link
     .link {
         color: black;

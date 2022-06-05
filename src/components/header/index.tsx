@@ -5,6 +5,7 @@ import { useEffect, useState } from 'react'
 import { useAuthState } from 'react-firebase-hooks/auth'
 import { auth, signout } from '../../app/firebase'
 import Button from '../button'
+import { Link } from 'react-router-dom'
 const HeaderStyled = styled.header`
   display: flex;
   justify-content: space-between;
@@ -41,19 +42,17 @@ const HeaderStyled = styled.header`
     right: 0;
 
     background-color: ${({ theme }) => theme.colors.wheat};
-    padding: 1rem;
+    padding: 0.5rem 0;
     border-radius: 0.75rem;
 
     z-index: 100;
 
-    ul {
-      margin: 0;
-      padding: 0;
-      list-style: none;
+    .menu-item {
+      padding: 0.25rem 0.75rem;
       white-space: nowrap;
 
-      li:not(:last-child) {
-        margin-bottom: 0.25rem;
+      &:hover {
+        background: ${({ theme }) => theme.colors.brown};
       }
     }
   }
@@ -81,37 +80,51 @@ const Header = () => {
     <HeaderStyled>
       {isMobile ? (
         <>
-          <h1 className="fsize-3">Recipe app</h1>
+          <Link to="/">
+            <h1 className="fsize-3">Recipe app</h1>
+          </Link>
           <div className="icons-wrapper">
-            <BsBell className="icon bell fsize-2" />
+            <Link to="/notifications">
+              <BsBell className="icon bell fsize-2" />
+            </Link>
             <div className="pos-relative">
               <FiMenu
                 className="icon fsize-2 flex align-center"
                 onClick={() => setOpenMenu(!openMenu)}
               />
               {openMenu && (
-                <div className="mobile-menu">
-                  <ul>
-                    <li>Browse Recipes</li>
-                    <li>My Collection</li>
-                    {user ? (
-                      <>
-                        <li>Profile</li>
-                        <li onClick={signout}>Logout</li>
-                      </>
-                    ) : (
-                      <>
-                        <li>Signin</li>
-                        <li>Signup</li>
-                      </>
-                    )}
-                    <li
-                      className="text-underline text-center"
-                      onClick={() => setOpenMenu(false)}
-                    >
-                      Hide
-                    </li>
-                  </ul>
+                <div className="mobile-menu flex direction-column">
+                  <Link to="/recipes" className="menu-item">
+                    Browse Recipes
+                  </Link>
+                  <Link to="/recipes?user=me" className="menu-item">
+                    My Collection
+                  </Link>
+                  {user ? (
+                    <>
+                      <Link to="/user" className="menu-item">
+                        Profile
+                      </Link>
+                      <div onClick={signout} className="menu-item pointer">
+                        Log out
+                      </div>
+                    </>
+                  ) : (
+                    <>
+                      <Link to="signin" className="menu-item">
+                        Sign in
+                      </Link>
+                      <Link to="signup" className="menu-item">
+                        Sign up
+                      </Link>
+                    </>
+                  )}
+                  <div
+                    className="text-underline text-center pointer"
+                    onClick={() => setOpenMenu(false)}
+                  >
+                    Hide
+                  </div>
                 </div>
               )}
             </div>
@@ -119,26 +132,44 @@ const Header = () => {
         </>
       ) : (
         <>
-          <h1 className="fsize-3">Recipe app</h1>
+          <Link to="/">
+            <h1 className="fsize-3">Recipe app</h1>
+          </Link>
           <div className="desktop-wrapper flex align-center gap-large">
-            <div className="item">Browse Recipes</div>
-            <div className="item">My collection</div>
+            <Link to="/recipes">
+              <div className="pointer">Browse Recipes</div>
+            </Link>
+            <Link to="/recipes?user=me">
+              <div className="pointer">My collection</div>
+            </Link>
             <div className="flex align-center gap-medium">
               {user ? (
                 <>
-                  <div className="item flex align-center">
+                  <Link
+                    to="/notifications"
+                    className="pointer flex align-center"
+                  >
                     <BsBell />
+                  </Link>
+                  <Link to="/user">
+                    <div className="pointer">Profile</div>
+                  </Link>
+                  <div className="pointer" onClick={signout}>
+                    Log out
                   </div>
-                  <div className="item">Profile</div>
                 </>
               ) : (
                 <div className="flex gap-small">
-                  <Button textColor="teal" borderColor="teal">
-                    Sign in
-                  </Button>
-                  <Button textColor="wheat" background="brown">
-                    Sign up
-                  </Button>
+                  <Link to="/signin">
+                    <Button textColor="teal" borderColor="teal">
+                      Sign in
+                    </Button>
+                  </Link>
+                  <Link to="signup">
+                    <Button textColor="wheat" background="brown">
+                      Sign up
+                    </Button>
+                  </Link>
                 </div>
               )}
             </div>

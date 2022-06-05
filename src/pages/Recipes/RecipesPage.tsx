@@ -100,6 +100,7 @@ const RecipesPage = () => {
         const ingredients = ingredientSnapshot.docs.map(i => i.data())
         const recipe: IRecipe = {
           ...doc.data(),
+          id: doc.id,
           ingredients,
         }
         return recipe

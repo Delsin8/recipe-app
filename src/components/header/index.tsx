@@ -2,6 +2,9 @@ import styled from 'styled-components'
 import { FiMenu } from 'react-icons/fi'
 import { BsBell } from 'react-icons/bs'
 import { useEffect, useState } from 'react'
+import { useAuthState } from 'react-firebase-hooks/auth'
+import { auth, signout } from '../../app/firebase'
+import Button from '../button'
 const HeaderStyled = styled.header`
   display: flex;
   justify-content: space-between;
@@ -70,6 +73,10 @@ const Header = () => {
   }, [])
 
   const isMobile = windowWidth < 769
+  const [user, loading, error] = useAuthState(auth)
+
+  if (loading) return <div>Loading</div>
+
   return (
     <HeaderStyled>
       {isMobile ? (
@@ -87,7 +94,17 @@ const Header = () => {
                   <ul>
                     <li>Browse Recipes</li>
                     <li>My Collection</li>
-                    <li>Profile</li>
+                    {user ? (
+                      <>
+                        <li>Profile</li>
+                        <li onClick={signout}>Logout</li>
+                      </>
+                    ) : (
+                      <>
+                        <li>Signin</li>
+                        <li>Signup</li>
+                      </>
+                    )}
                     <li
                       className="text-underline text-center"
                       onClick={() => setOpenMenu(false)}
@@ -106,10 +123,25 @@ const Header = () => {
           <div className="desktop-wrapper flex align-center gap-large">
             <div className="item">Browse Recipes</div>
             <div className="item">My collection</div>
-            <div className="item">
-              <BsBell />
+            <div className="flex align-center gap-medium">
+              {user ? (
+                <>
+                  <div className="item flex align-center">
+                    <BsBell />
+                  </div>
+                  <div className="item">Profile</div>
+                </>
+              ) : (
+                <div className="flex gap-small">
+                  <Button textColor="teal" borderColor="teal">
+                    Sign in
+                  </Button>
+                  <Button textColor="wheat" background="brown">
+                    Sign up
+                  </Button>
+                </div>
+              )}
             </div>
-            <div className="item">Profile</div>
           </div>
         </>
       )}

@@ -12,6 +12,7 @@ import {
   onAuthStateChanged,
   signInWithEmailAndPassword,
   updateProfile,
+  signOut,
 } from 'firebase/auth'
 
 const firebaseConfig = {
@@ -49,6 +50,14 @@ export const signupWithEmailAndPassword = async (name, email, password) => {
 export const signinWithEmailAndPassword = async (email, password) => {
   try {
     await signInWithEmailAndPassword(auth, email, password)
+  } catch (error) {
+    console.log(error)
+  }
+}
+
+export const signout = async () => {
+  try {
+    await signOut(auth)
   } catch (error) {
     console.log(error)
   }

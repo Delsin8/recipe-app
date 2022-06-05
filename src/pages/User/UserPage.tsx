@@ -4,6 +4,8 @@ import { BiEditAlt } from 'react-icons/bi'
 import Recipe from '../../components/recipe'
 import Recipes from '../../components/recipe/Recipes'
 import Button from '../../components/button'
+import { useAuthState } from 'react-firebase-hooks/auth'
+import { auth } from '../../app/firebase'
 
 const UserPageStyled = styled.div`
   .photo {
@@ -49,12 +51,15 @@ const UserPageStyled = styled.div`
 `
 
 const UserPage = () => {
+  const [user, loading, error] = useAuthState(auth)
+
+  if (loading) return <div>Loading</div>
   return (
     <Layout>
       <UserPageStyled className="content">
         <div className="flex gap-small">
           <div className="photo">
-            <img src="" />
+            <img src={user?.photoURL || '/images/'} />
             <div className="upload-picture">Upload picture</div>
           </div>
           <div className="info-section flex direction-column">

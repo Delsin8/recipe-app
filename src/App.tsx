@@ -12,8 +12,6 @@ import NotificationsPage from './pages/Notifications/NotificationsPage'
 import HomePage from './pages/Home/HomePage'
 import SigninPage from './pages/Auth/SigninPage'
 import SignupPage from './pages/Auth/SignupPage'
-import { AuthContext } from './hooks/useAuth'
-import { getAuth } from 'firebase/auth'
 
 function App() {
   return (

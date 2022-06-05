@@ -10,6 +10,8 @@ import {
   createUserWithEmailAndPassword,
   getAuth,
   onAuthStateChanged,
+  signInWithEmailAndPassword,
+  updateProfile,
 } from 'firebase/auth'
 
 const firebaseConfig = {
@@ -30,9 +32,23 @@ export const auth = getAuth(app)
 export const signupWithEmailAndPassword = async (name, email, password) => {
   try {
     const res = await createUserWithEmailAndPassword(auth, email, password)
-    res.user.displayName = name
-    res.user.photoURL =
-      'https://e7.pngegg.com/pngimages/416/62/png-clipart-anonymous-person-login-google-account-computer-icons-user-activity-miscellaneous-computer-thumbnail.png'
+      .then(async result => {
+        return await updateProfile(auth.currentUser, {
+          displayName: name,
+          photoURL:
+            'https://cambodiaict.net/wp-content/uploads/2019/12/computer-icons-user-profile-google-account-photos-icon-account.jpg',
+        })
+      })
+      .catch(function (error) {
+        console.log(12345)
+      })
+  } catch (error) {
+    console.log(error)
+  }
+}
+export const signinWithEmailAndPassword = async (email, password) => {
+  try {
+    await signInWithEmailAndPassword(auth, email, password)
   } catch (error) {
     console.log(error)
   }
@@ -40,7 +56,7 @@ export const signupWithEmailAndPassword = async (name, email, password) => {
 
 onAuthStateChanged(auth, user => {
   if (user) {
-    console.log(auth.currentUser)
+    console.log(user)
   } else {
     console.log('logout')
   }

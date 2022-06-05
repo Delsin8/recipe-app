@@ -84,6 +84,11 @@ body {
     .inline-block {
         display: inline-block;
     }
+    
+    // position
+    .pos-relative {
+        position: relative;
+    }
 
     // 
     .text-center {

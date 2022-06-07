@@ -5,7 +5,15 @@ import Recipe from '../../components/recipe'
 import Recipes from '../../components/recipe/Recipes'
 import Button from '../../components/button'
 import { useAuthState } from 'react-firebase-hooks/auth'
-import { auth } from '../../app/firebase'
+import db, { auth } from '../../app/firebase'
+import { useEffect, useState } from 'react'
+import {
+  collection,
+  doc,
+  DocumentData,
+  getDoc,
+  getDocs,
+} from 'firebase/firestore'
 
 const UserPageStyled = styled.div`
   .photo {
@@ -52,6 +60,27 @@ const UserPageStyled = styled.div`
 
 const UserPage = () => {
   const [user, loading, error] = useAuthState(auth)
+
+  const [test, setTest] = useState()
+
+  useEffect(() => {
+    const getTest = async () => {
+      const id = 'dqINQtHekhzOeJD9z9z5'
+      const recipeDoc = doc(db, `recipes/${id}`)
+      const recipeSnapshot = await getDoc(recipeDoc).then(
+        async (d: DocumentData) => {
+          const { author } = d.data()
+          const userDoc = await getDoc(author).then(async (q: DocumentData) => {
+            q.data().subscribers.map(async (a: any) =>
+              console.log(await (await getDoc(a)).data())
+            )
+          })
+        }
+      )
+    }
+
+    getTest()
+  }, [])
 
   if (loading) return <div>Loading</div>
   return (

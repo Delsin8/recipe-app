@@ -15,7 +15,7 @@ const CommentsPage = () => {
       body: lorem,
       created_at: new Date(),
       user: {
-        _id: '123',
+        id: '123',
         name: 'Smiles',
       },
     },

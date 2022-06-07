@@ -1,11 +1,17 @@
+import { DocumentReference } from 'firebase/firestore'
+
 export interface IRecipe {
   id: string
   name: string
   cooking_time: number
   difficulty: string
+  author?: DocumentReference
   ingredients?: ingredient[]
   steps?: step[]
   tips?: tip[]
+  tags?: string[]
+  likes?: number
+  dislikes?: number
 }
 
 interface ingredient {
@@ -22,10 +28,15 @@ interface tip {
   id: string
   body: string
 }
+export interface IFilter {
+  type: 'time' | 'difficulty' | 'tag' | 'rating' | 'user'
+  value: number | string
+}
 
 export interface IUser {
-  _id: string
+  id: string
   name: string
+  photoURL?: string
 }
 
 export interface IComment {

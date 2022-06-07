@@ -15,7 +15,7 @@ interface IRecipes {
 }
 
 const Recipes: React.FC<IRecipes> = ({ recipes }) => {
-  console.log(recipes)
+  // console.log(recipes)
   return (
     <RecipesStyled>
       {recipes.map(r => (

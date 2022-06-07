@@ -12,13 +12,16 @@ import { useEffect, useState } from 'react'
 import { v4 as uuidv4 } from 'uuid'
 
 import {
+  addDoc,
   collection,
   doc,
   DocumentData,
   getDoc,
   getDocs,
+  runTransaction,
+  setDoc,
 } from 'firebase/firestore'
-import db from '../../app/firebase'
+import db, { auth } from '../../app/firebase'
 
 const lorem =
   'Lorem ipsum dolor sit amet consectetur adipisicing elit. Delectus natus sapiente quo quod? Ut ipsum tenetur suscipit recusandae dignissimos ducimus natus voluptas error voluptatum id sint, eveniet hic quibusdam! Praesentium?'
@@ -184,6 +187,98 @@ const RecipePage = () => {
     fetchRecipe().then(() => setLoading(false))
   }, [])
 
+  const like = async () => {
+    const recipeDoc = doc(db, `recipes/${recipe?.id}`)
+    runTransaction(db, async transaction => {
+      return await transaction
+        .get(recipeDoc)
+        .then(async (data: DocumentData) => {
+          const ratingsCol = collection(db, `recipes/${recipe?.id}/ratings`)
+          await getDocs(ratingsCol).then(async rating => {
+            if (!auth.currentUser) return
+
+            const currentUserID = auth.currentUser?.uid
+
+            const candidate = rating.docs.find(
+              r => r.data().user == currentUserID
+            )
+
+            if (!candidate) {
+              return await addDoc(
+                collection(db, `recipes/${recipe?.id}/ratings`),
+                {
+                  user: currentUserID,
+                  type: 'like',
+                }
+              ).then(d =>
+                transaction.update(recipeDoc, {
+                  likes: data.data().likes ? data.data().likes + 1 : 1,
+                })
+              )
+            }
+            if (candidate.data().type === 'dislike') {
+              return await setDoc(candidate.ref, {
+                user: currentUserID,
+                type: 'like',
+              }).then(q => {
+                const d = data.data()
+                transaction.update(recipeDoc, {
+                  likes: d.likes ? d.likes + 1 : 1,
+                  dislikes: d.dislikes && d.dislikes > 0 && d.dislikes - 1,
+                })
+              })
+            }
+          })
+        })
+    })
+  }
+
+  const dislike = async () => {
+    const recipeDoc = doc(db, `recipes/${recipe?.id}`)
+    runTransaction(db, async transaction => {
+      return await transaction
+        .get(recipeDoc)
+        .then(async (data: DocumentData) => {
+          const ratingsCol = collection(db, `recipes/${recipe?.id}/ratings`)
+          await getDocs(ratingsCol).then(async rating => {
+            if (!auth.currentUser) return
+
+            const currentUserID = auth.currentUser?.uid
+
+            const candidate = rating.docs.find(
+              r => r.data().user == currentUserID
+            )
+
+            if (!candidate) {
+              return await addDoc(
+                collection(db, `recipes/${recipe?.id}/ratings`),
+                {
+                  user: currentUserID,
+                  type: 'dislike',
+                }
+              ).then(d =>
+                transaction.update(recipeDoc, {
+                  dislikes: data.data().dislikes ? data.data().dislikes + 1 : 1,
+                })
+              )
+            }
+            if (candidate.data().type === 'like') {
+              return await setDoc(candidate.ref, {
+                user: currentUserID,
+                type: 'dislike',
+              }).then(q => {
+                const d = data.data()
+                transaction.update(recipeDoc, {
+                  likes: d.likes && d.likes > 0 && d.likes - 1,
+                  dislikes: d.dislikes ? d.dislikes + 1 : 1,
+                })
+              })
+            }
+          })
+        })
+    })
+  }
+
   if (loading) return <div>Loading</div>
 
   return (
@@ -265,10 +360,10 @@ const RecipePage = () => {
         </div>
         <div className="flex justify-center align-center">
           <div className="like flex justify-center align-center gap-small">
-            <GoThumbsup /> 145
+            <GoThumbsup onClick={like} /> {recipe?.likes || 0}
           </div>
           <div className="dislike flex justify-center align-center gap-small">
-            <GoThumbsdown /> 5
+            <GoThumbsdown onClick={dislike} /> {recipe?.dislikes || 0}
           </div>
         </div>
         <div className="tips-section">

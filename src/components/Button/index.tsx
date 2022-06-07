@@ -32,6 +32,7 @@ const Button = styled(ButtonStyled)<IButton>`
   ${({ width }) => width && `width: ${width};`}
   ${({ gradient }) => gradient && `background: ${gradient};`}
   ${({ cursor }) => (cursor ? `cursor: ${cursor};` : 'cursor: pointer;')}
+  outline: none;
 `
 
 export default Button

@@ -1,33 +1,27 @@
 import { DocumentReference } from 'firebase/firestore'
 
 export interface IRecipe {
-  id: string
+  id?: string
   name: string
   cooking_time: number
   difficulty: string
+  portion: number
   author?: DocumentReference
-  ingredients?: ingredient[]
-  steps?: step[]
-  tips?: tip[]
+  ingredients?: IngredientInterface[]
+  steps?: string[]
+  tips?: string[]
   tags?: string[]
   likes?: number
   dislikes?: number
 }
 
-interface ingredient {
-  id: string
+export interface IngredientInterface {
+  id?: string
   name: string
   measure_method: string
   amount: number
 }
-interface step {
-  id: string
-  body: string
-}
-interface tip {
-  id: string
-  body: string
-}
+
 export interface IFilter {
   type: 'time' | 'difficulty' | 'tag' | 'rating' | 'user'
   value: number | string
@@ -45,3 +39,12 @@ export interface IComment {
   body: string
   created_at: Date
 }
+
+export type TagType =
+  | 'Vegan'
+  | 'Healthy'
+  | 'Korean'
+  | 'Dessert'
+  | 'Dairy-free'
+  | 'Beverage'
+  | 'Snack'

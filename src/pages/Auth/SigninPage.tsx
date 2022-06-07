@@ -1,14 +1,10 @@
 import Layout from '../../components/layout'
 import AuthStyled from './AuthStyled'
-import { BsEnvelope } from 'react-icons/bs'
-import { IoLockClosedOutline } from 'react-icons/io5'
 import Button from '../../components/button'
 import { signinWithEmailAndPassword } from '../../app/firebase'
 import { useState } from 'react'
 import { Link } from 'react-router-dom'
-
-const gradient =
-  'linear-gradient(90deg, rgba(36,106,115,1) 0%, rgba(134,80,0,1) 100%)'
+import { gradient } from '../../custom-data'
 
 const SigninPage = () => {
   const [email, setEmail] = useState('')
@@ -29,7 +25,7 @@ const SigninPage = () => {
         </div>
         <div className="form-input flex align-center gap-small fsize-3 weight-light">
           <img src="/images/svg/password.svg" />
-          {/* <IoLockClosedOutline className="icon" /> */}
+
           <input
             placeholder="Password"
             value={password}

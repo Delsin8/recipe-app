@@ -4,9 +4,7 @@ import Button from '../../components/button'
 import { signupWithEmailAndPassword } from '../../app/firebase'
 import { useState } from 'react'
 import { Link } from 'react-router-dom'
-
-const gradient =
-  'linear-gradient(90deg, rgba(36,106,115,1) 0%, rgba(134,80,0,1) 100%)'
+import { gradient } from '../../custom-data'
 
 const SignupPage = () => {
   const [nickname, setNickname] = useState('')

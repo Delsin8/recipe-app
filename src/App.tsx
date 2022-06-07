@@ -12,6 +12,7 @@ import NotificationsPage from './pages/Notifications/NotificationsPage'
 import HomePage from './pages/Home/HomePage'
 import SigninPage from './pages/Auth/SigninPage'
 import SignupPage from './pages/Auth/SignupPage'
+import CreateRecipePage from './pages/CreateRecipe/CreateRecipePage'
 
 function App() {
   return (
@@ -22,6 +23,7 @@ function App() {
         <Route path="/" element={<HomePage />} />
         <Route path="/recipe/:id" element={<RecipePage />} />
         <Route path="/recipes" element={<RecipesPage />} />
+        <Route path="/recipes/create" element={<CreateRecipePage />} />
         <Route path="/comments/:id" element={<CommentsPage />} />
         <Route path="/user" element={<UserPage />} />
         <Route path="/user/:id" element={<UserPage />} />

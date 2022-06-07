@@ -104,4 +104,35 @@ export const fetchUsers = async () => {
   return usersData
 }
 
+export const createRecipe = async (recipe: IRecipe) => {
+  console.log(recipe)
+  try {
+    const {
+      cooking_time,
+      difficulty,
+      name,
+      ingredients,
+      steps,
+      tags,
+      tips,
+      portion,
+    } = recipe
+    await addDoc(collection(db, 'recipes'), {
+      cooking_time,
+      difficulty,
+      name,
+      steps,
+      tags,
+      tips,
+      portion,
+    }).then(data =>
+      ingredients?.map(ingredient =>
+        addDoc(collection(db, `recipes/${data.id}/ingredients`), ingredient)
+      )
+    )
+  } catch (error) {
+    console.log(error)
+  }
+}
+
 export default db

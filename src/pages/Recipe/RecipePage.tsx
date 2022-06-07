@@ -83,7 +83,7 @@ const RecipePageStyled = styled.div`
   }
 
   .servings-input {
-    width: 20px;
+    width: 2.5rem;
     border: none;
     border-radius: 0.25rem;
     text-align: center;
@@ -343,7 +343,7 @@ const RecipePage = () => {
             {recipe?.steps && recipe.steps.length > 0 ? (
               recipe?.steps.map((s, index) => (
                 <div key={uuidv4()} className="step">
-                  <div>{s.body}</div>
+                  <div>{s}</div>
                   <div className="step-order">{index + 1}</div>
                 </div>
               ))

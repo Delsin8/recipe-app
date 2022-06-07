@@ -6,7 +6,7 @@ import { IRecipe } from '../../types'
 
 const HomePageStyled = styled.div`
   h3 {
-    margin: 0 0 0.25rem 0;
+    margin: 0 0 0.5rem 0;
   }
 `
 
@@ -15,6 +15,7 @@ const recipe: IRecipe = {
   cooking_time: 45,
   difficulty: 'd',
   id: '1',
+  portion: 3,
 }
 
 const HomePage = () => {

@@ -23,9 +23,6 @@ import {
 } from 'firebase/firestore'
 import db, { auth } from '../../app/firebase'
 
-const lorem =
-  'Lorem ipsum dolor sit amet consectetur adipisicing elit. Delectus natus sapiente quo quod? Ut ipsum tenetur suscipit recusandae dignissimos ducimus natus voluptas error voluptatum id sint, eveniet hic quibusdam! Praesentium?'
-
 const RecipePageStyled = styled.div`
   .t {
     position: relative;
@@ -372,7 +369,7 @@ const RecipePage = () => {
               <h3>Tips</h3>
               <ul>
                 {recipe.tips.map(l => (
-                  <li key={`l_${l}`}>{lorem}</li>
+                  <li key={`l_${l}`}>{l}</li>
                 ))}
               </ul>
             </>

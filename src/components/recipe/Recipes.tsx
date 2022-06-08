@@ -9,8 +9,8 @@ const RecipesStyled = styled.div<{ type: 'grid' | 'flex' }>`
     type === 'flex'
       ? `display: flex; gap: 0.5rem;`
       : `display: grid;
-  // grid-template-columns: repeat(2, 1fr);
-  // grid-gap: 0.5rem;
+  grid-template-columns: repeat(2, 1fr);
+  grid-gap: 0.5rem;
   `}
 `
 
@@ -29,7 +29,6 @@ const Recipes: React.FC<IRecipes> = ({ recipes, type = 'grid' }) => {
           ))}
         </RecipesStyled>
       )
-
     default:
       return (
         <RecipesStyled type="grid">

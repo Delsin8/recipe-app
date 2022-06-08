@@ -8,6 +8,7 @@ import { getFilteredRecipes } from '../../functions/filter'
 import { fetchRecipes, fetchUsers } from '../../app/firebase'
 import RecipesPageStyled from './RecipesPageStyled'
 import Filter from '../../features/filter'
+import Pagination from '../../features/pagination'
 
 const RecipesPage = () => {
   const [recipes, setRecipes] = useState<IRecipe[]>([])
@@ -27,8 +28,19 @@ const RecipesPage = () => {
 
   const getRecipes = () => {
     const filteredRecipes = getFilteredRecipes(recipes, filters)
-    return filteredRecipes
+    const finalRecipes = filteredRecipes.slice(
+      indexOfFirstCourse,
+      indexOfLastCourse
+    )
+
+    return finalRecipes
   }
+
+  // pagination
+  const [currentPage, setCurrentPage] = useState(1)
+  const coursesPerPage = 12
+  const indexOfLastCourse = currentPage * coursesPerPage
+  const indexOfFirstCourse = indexOfLastCourse - coursesPerPage
 
   if (loading) return <div>Loading</div>
 
@@ -57,6 +69,12 @@ const RecipesPage = () => {
           )}
         </div>
         <Recipes recipes={getRecipes()} />
+        <Pagination
+          coursesAmount={getFilteredRecipes(recipes, filters).length}
+          coursesPerPage={coursesPerPage}
+          currentPage={currentPage}
+          setPage={setCurrentPage}
+        />
       </RecipesPageStyled>
     </Layout>
   )

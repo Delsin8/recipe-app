@@ -13,6 +13,7 @@ import HomePage from './pages/Home/HomePage'
 import SigninPage from './pages/Auth/SigninPage'
 import SignupPage from './pages/Auth/SignupPage'
 import CreateRecipePage from './pages/CreateRecipe/CreateRecipePage'
+import NotFoundPage from './pages/404/NotFoundPage'
 
 function App() {
   return (
@@ -29,7 +30,9 @@ function App() {
         <Route path="/user/:id" element={<UserPage />} />
         <Route path="/signup" element={<SignupPage />} />
         <Route path="/signin" element={<SigninPage />} />
-        <Route path="/notifications" element={<NotificationsPage />} />
+        {/* <Route path="/notifications" element={<NotificationsPage />} /> */}
+
+        <Route path="*" element={<NotFoundPage />} />
       </Routes>
     </ThemeProvider>
   )

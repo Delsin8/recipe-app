@@ -1,4 +1,8 @@
+import { doc, onSnapshot, query, where } from 'firebase/firestore'
+import { useEffect } from 'react'
+import { useAuthState } from 'react-firebase-hooks/auth'
 import styled from 'styled-components'
+import db, { auth } from '../../app/firebase'
 import Layout from '../../components/layout'
 
 const NotificationsPageStyled = styled.div`

@@ -3,9 +3,10 @@ import { FiMenu } from 'react-icons/fi'
 import { BsBell } from 'react-icons/bs'
 import { useEffect, useState } from 'react'
 import { useAuthState } from 'react-firebase-hooks/auth'
-import { auth, signout } from '../../app/firebase'
+import db, { auth, signout } from '../../app/firebase'
 import Button from '../button'
 import { Link } from 'react-router-dom'
+import { doc, onSnapshot } from 'firebase/firestore'
 const HeaderStyled = styled.header`
   display: flex;
   justify-content: space-between;
@@ -24,6 +25,19 @@ const HeaderStyled = styled.header`
     display: flex;
     gap: 0.75rem;
     align-items: center;
+  }
+
+  .notifications-amount {
+    position: absolute;
+    top: 0.6rem;
+    right: 0;
+
+    background: ${({ theme }) => theme.colors.teal};
+    color: ${({ theme }) => theme.colors.wheat};
+    padding: 2px;
+    line-height: 0.7;
+    font-size: 0.75rem;
+    border-radius: 0.25rem;
   }
 
   .icon {
@@ -73,6 +87,17 @@ const Header = () => {
 
   const isMobile = windowWidth < 769
   const [user, loading, error] = useAuthState(auth)
+  // const [notifications, setNotifications] = useState([])
+
+  // useEffect(() => {
+
+  //   const userDoc = doc(db, `users/${user?.uid}`)
+  //   const unsubscribe = onSnapshot(userDoc, snapshot => {
+  //    snapshot.ref.type
+  //   })
+
+  //   return unsubscribe
+  // }, [user])
 
   if (loading) return <div>Loading</div>
 
@@ -84,9 +109,10 @@ const Header = () => {
             <h1 className="fsize-3">Recipe app</h1>
           </Link>
           <div className="icons-wrapper">
-            <Link to="/notifications">
-              <BsBell className="icon bell fsize-2" />
-            </Link>
+            {/* <Link to="/notifications" className="pos-relative">
+              <BsBell className="icon bell fsize-3" />
+              <div className="notifications-amount">{notifications.length}</div>
+            </Link> */}
             <div className="pos-relative">
               <FiMenu
                 className="icon fsize-2 flex align-center"
@@ -145,12 +171,12 @@ const Header = () => {
             <div className="flex align-center gap-medium">
               {user ? (
                 <>
-                  <Link
+                  {/* <Link
                     to="/notifications"
                     className="pointer flex align-center"
                   >
                     <BsBell />
-                  </Link>
+                  </Link> */}
                   <Link to="/user">
                     <div className="pointer">Profile</div>
                   </Link>

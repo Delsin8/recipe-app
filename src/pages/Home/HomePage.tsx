@@ -1,4 +1,5 @@
 import styled from 'styled-components'
+import Carousel from '../../components/carousel'
 import Layout from '../../components/layout'
 import Recipe from '../../components/recipe'
 import Recipes from '../../components/recipe/Recipes'
@@ -21,6 +22,14 @@ const recipe: IRecipe = {
 const HomePage = () => {
   return (
     <Layout>
+      {/* slider test */}
+      <Carousel>
+        <Recipes
+          type="flex"
+          recipes={[recipe, recipe, recipe, recipe, recipe, recipe]}
+        />
+      </Carousel>
+      {/* slider test end */}
       <HomePageStyled className="content">
         <div>
           <h3 className="weight-extra-light">Last added</h3>

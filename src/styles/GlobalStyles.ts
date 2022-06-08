@@ -36,6 +36,10 @@ body {
         text-decoration: none;
     }
 
+    textarea {
+        font-family: 'Raleway';
+    }
+
     // link
     .link {
         color: black;

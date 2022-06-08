@@ -7,6 +7,8 @@ import {
   addDoc,
   setDoc,
   DocumentData,
+  Timestamp,
+  getDoc,
 } from 'firebase/firestore'
 import {
   createUserWithEmailAndPassword,
@@ -16,7 +18,7 @@ import {
   updateProfile,
   signOut,
 } from 'firebase/auth'
-import { IRecipe, IUser } from '../types'
+import { IComment, IRecipe, IUser } from '../types'
 
 const firebaseConfig = {
   apiKey: process.env.REACT_APP_API_KEY,
@@ -104,6 +106,15 @@ export const fetchUsers = async () => {
   return usersData
 }
 
+export const fetchUser = async (userID: string) => {
+  try {
+    const userDoc = doc(collection(db, `users/${userID}`))
+    return await getDoc(userDoc)
+  } catch (error) {
+    console.log(error)
+  }
+}
+
 export const createRecipe = async (recipe: IRecipe) => {
   console.log(recipe)
   try {
@@ -130,6 +141,40 @@ export const createRecipe = async (recipe: IRecipe) => {
         addDoc(collection(db, `recipes/${data.id}/ingredients`), ingredient)
       )
     )
+  } catch (error) {
+    console.log(error)
+  }
+}
+
+export const fetchComments = async (recipeID: string) => {
+  try {
+    const documents = await getDocs(
+      collection(db, `recipes/${recipeID}/comments`)
+    )
+    const comments = documents.docs.map(async (d: DocumentData) => {
+      const userDoc = await getDoc(d.data().author)
+      const result: IComment = {
+        ...d.data(),
+        author: userDoc.data(),
+      }
+      return result
+    })
+    return Promise.all(comments)
+  } catch (error) {
+    console.log(error)
+  }
+}
+
+export const sendComment = async (comment: string, recipeID: string) => {
+  if (!auth.currentUser) {
+    return
+  }
+  try {
+    await addDoc(collection(db, `recipes/${recipeID}/comments`), {
+      body: comment,
+      author: doc(db, 'users', auth.currentUser.uid),
+      created_at: new Date(),
+    })
   } catch (error) {
     console.log(error)
   }

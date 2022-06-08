@@ -1,4 +1,4 @@
-import { DocumentReference } from 'firebase/firestore'
+import { DocumentReference, Timestamp } from 'firebase/firestore'
 
 export interface IRecipe {
   id?: string
@@ -31,13 +31,15 @@ export interface IUser {
   id: string
   name: string
   photoURL?: string
+  likes?: string[]
+  dislikes?: string[]
 }
 
 export interface IComment {
-  _id: string
-  user: IUser
+  id?: string
+  author: IUser
   body: string
-  created_at: Date
+  created_at: Timestamp
 }
 
 export type TagType =

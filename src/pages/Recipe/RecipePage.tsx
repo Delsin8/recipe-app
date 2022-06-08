@@ -5,7 +5,7 @@ import { BsClockHistory } from 'react-icons/bs'
 import { IoPeopleOutline } from 'react-icons/io5'
 import { GoThumbsup, GoThumbsdown } from 'react-icons/go'
 
-import { Link, useParams } from 'react-router-dom'
+import { Link, useLocation, useParams } from 'react-router-dom'
 import { IRecipe } from '../../types'
 import { useEffect, useState } from 'react'
 
@@ -13,6 +13,8 @@ import { v4 as uuidv4 } from 'uuid'
 
 import {
   addDoc,
+  arrayRemove,
+  arrayUnion,
   collection,
   doc,
   DocumentData,
@@ -20,6 +22,7 @@ import {
   getDocs,
   runTransaction,
   setDoc,
+  updateDoc,
 } from 'firebase/firestore'
 import db, { auth } from '../../app/firebase'
 
@@ -142,6 +145,7 @@ const RecipePage = () => {
   const [recipe, setRecipe] = useState<IRecipe>()
   const [loading, setLoading] = useState(true)
   const { id } = useParams()
+  const { pathname } = useLocation()
 
   useEffect(() => {
     const fetchRecipe = async () => {
@@ -191,41 +195,48 @@ const RecipePage = () => {
         .get(recipeDoc)
         .then(async (data: DocumentData) => {
           const ratingsCol = collection(db, `recipes/${recipe?.id}/ratings`)
-          await getDocs(ratingsCol).then(async rating => {
-            if (!auth.currentUser) return
+          await getDocs(ratingsCol)
+            .then(async rating => {
+              if (!auth.currentUser) return
 
-            const currentUserID = auth.currentUser?.uid
+              const currentUserID = auth.currentUser?.uid
 
-            const candidate = rating.docs.find(
-              r => r.data().user == currentUserID
-            )
+              const candidate = rating.docs.find(
+                r => r.data().user == currentUserID
+              )
 
-            if (!candidate) {
-              return await addDoc(
-                collection(db, `recipes/${recipe?.id}/ratings`),
-                {
+              if (!candidate) {
+                return await addDoc(
+                  collection(db, `recipes/${recipe?.id}/ratings`),
+                  {
+                    user: currentUserID,
+                    type: 'like',
+                  }
+                ).then(d =>
+                  transaction.update(recipeDoc, {
+                    likes: data.data().likes ? data.data().likes + 1 : 1,
+                  })
+                )
+              }
+              if (candidate.data().type === 'dislike') {
+                return await setDoc(candidate.ref, {
                   user: currentUserID,
                   type: 'like',
-                }
-              ).then(d =>
-                transaction.update(recipeDoc, {
-                  likes: data.data().likes ? data.data().likes + 1 : 1,
+                }).then(q => {
+                  const d = data.data()
+                  transaction.update(recipeDoc, {
+                    likes: d.likes ? d.likes + 1 : 1,
+                    dislikes: d.dislikes && d.dislikes > 0 && d.dislikes - 1,
+                  })
                 })
-              )
-            }
-            if (candidate.data().type === 'dislike') {
-              return await setDoc(candidate.ref, {
-                user: currentUserID,
-                type: 'like',
-              }).then(q => {
-                const d = data.data()
-                transaction.update(recipeDoc, {
-                  likes: d.likes ? d.likes + 1 : 1,
-                  dislikes: d.dislikes && d.dislikes > 0 && d.dislikes - 1,
-                })
+              }
+            })
+            .then(() =>
+              updateDoc(doc(db, `users/${auth.currentUser?.uid}`), {
+                likes: arrayUnion(recipe?.id),
+                dislikes: arrayRemove(recipe?.id),
               })
-            }
-          })
+            )
         })
     })
   }
@@ -237,41 +248,50 @@ const RecipePage = () => {
         .get(recipeDoc)
         .then(async (data: DocumentData) => {
           const ratingsCol = collection(db, `recipes/${recipe?.id}/ratings`)
-          await getDocs(ratingsCol).then(async rating => {
-            if (!auth.currentUser) return
+          await getDocs(ratingsCol)
+            .then(async rating => {
+              if (!auth.currentUser) return
 
-            const currentUserID = auth.currentUser?.uid
+              const currentUserID = auth.currentUser?.uid
 
-            const candidate = rating.docs.find(
-              r => r.data().user == currentUserID
-            )
+              const candidate = rating.docs.find(
+                r => r.data().user == currentUserID
+              )
 
-            if (!candidate) {
-              return await addDoc(
-                collection(db, `recipes/${recipe?.id}/ratings`),
-                {
+              if (!candidate) {
+                return await addDoc(
+                  collection(db, `recipes/${recipe?.id}/ratings`),
+                  {
+                    user: currentUserID,
+                    type: 'dislike',
+                  }
+                ).then(d =>
+                  transaction.update(recipeDoc, {
+                    dislikes: data.data().dislikes
+                      ? data.data().dislikes + 1
+                      : 1,
+                  })
+                )
+              }
+              if (candidate.data().type === 'like') {
+                return await setDoc(candidate.ref, {
                   user: currentUserID,
                   type: 'dislike',
-                }
-              ).then(d =>
-                transaction.update(recipeDoc, {
-                  dislikes: data.data().dislikes ? data.data().dislikes + 1 : 1,
+                }).then(q => {
+                  const d = data.data()
+                  transaction.update(recipeDoc, {
+                    likes: d.likes && d.likes > 0 && d.likes - 1,
+                    dislikes: d.dislikes ? d.dislikes + 1 : 1,
+                  })
                 })
-              )
-            }
-            if (candidate.data().type === 'like') {
-              return await setDoc(candidate.ref, {
-                user: currentUserID,
-                type: 'dislike',
-              }).then(q => {
-                const d = data.data()
-                transaction.update(recipeDoc, {
-                  likes: d.likes && d.likes > 0 && d.likes - 1,
-                  dislikes: d.dislikes ? d.dislikes + 1 : 1,
-                })
+              }
+            })
+            .then(() =>
+              updateDoc(doc(db, `users/${auth.currentUser?.uid}`), {
+                dislikes: arrayUnion(recipe?.id),
+                likes: arrayRemove(recipe?.id),
               })
-            }
-          })
+            )
         })
     })
   }
@@ -375,7 +395,7 @@ const RecipePage = () => {
             </>
           )}
         </div>
-        <Link to={`/comments/${recipe?.id}`} className="text-center">
+        <Link to={`${pathname}/comments`} className="text-center">
           <Button
             textColor="wheat"
             background="darkPurple"

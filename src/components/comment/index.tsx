@@ -2,48 +2,69 @@ import styled from 'styled-components'
 import { IComment } from '../../types'
 import Layout from '../layout'
 import { GoThumbsup, GoThumbsdown } from 'react-icons/go'
-
-const lorem =
-  'Lorem ipsum dolor sit amet consectetur, adipisicing elit. Iusto magni nostrum, obcaecati dignissimos iure hic libero temporibus facere harum molestiae aperiam ratione itaque, ut sunt assumenda, quia voluptatibus ullam magnam?'
+import { useParams } from 'react-router-dom'
 
 const CommentStyled = styled.div`
-  border: 1px solid ${({ theme }) => theme.colors.seaGreen};
-  padding: 0.25rem 0.5rem;
-  border-radius: 1rem;
+  .container {
+    padding: 0.25rem 0.5rem;
+    border-radius: 1rem;
 
-  .profile-picture {
-    img {
-      width: 64px;
-      height: 64px;
-      border-radius: 50%;
+    .profile-picture {
+      img {
+        width: 64px;
+        height: 64px;
+        border-radius: 50%;
+      }
+    }
+
+    .username {
+      font-weight: 500;
+    }
+
+    .comment-body {
+      font-size: 0.75rem;
+      word-break: break-all;
     }
   }
 
-  .username {
-    font-weight: 500;
+  .liked {
+    border: 1px solid ${({ theme }) => theme.colors.seaGreen};
   }
-
-  .comment-body {
-    font-size: 0.75rem;
+  .disliked {
+    border: 1px solid ${({ theme }) => theme.colors.darkPurple};
   }
 `
 
-const Comment: React.FC<IComment> = ({ body, user, created_at }) => {
+const Comment: React.FC<IComment> = ({ body, author, created_at }) => {
+  const { name, dislikes, likes, photoURL } = author
+  const { id } = useParams()
+
+  const defineStyle = () => {
+    const isLiked = likes?.some(l => l === id)
+    if (isLiked) return 'liked'
+
+    const isDisliked = dislikes?.some(d => d === id)
+    if (isDisliked) return 'disliked'
+  }
+
   return (
     <Layout>
-      <CommentStyled className="flex gap-small">
-        <div className="profile-picture">
-          <img src="https://www.zastavki.com/pictures/1280x720/2009/Food___Pizza_Pizza_011915_26.jpg" />
-        </div>
-        <div>
-          <div className="flex align-center gap-small">
-            <div className="username">Username</div>
-            <GoThumbsup />
-            <div className="fsize-negative-3" style={{ opacity: '0.5' }}>
-              {created_at.toLocaleString()}
-            </div>
+      <CommentStyled>
+        <div className={`container flex gap-small ${defineStyle()}`}>
+          <div className="profile-picture">
+            <img src={`${photoURL || 'DEFAULT_IMAEGE'}`} />
           </div>
-          <div className="comment-body">{lorem}</div>
+          <div>
+            <div className="flex align-center gap-small">
+              <div className="username">{name}</div>
+              {(defineStyle() === 'liked' && <GoThumbsup />) ||
+                (defineStyle() === 'disliked' && <GoThumbsdown />)}
+              <div className="fsize-negative-3" style={{ opacity: '0.5' }}>
+                {created_at.toDate().toLocaleString()}
+              </div>
+            </div>
+            <div className="comment-body">{body}</div>
+          </div>
         </div>
       </CommentStyled>
     </Layout>

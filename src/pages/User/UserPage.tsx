@@ -1,19 +1,16 @@
 import styled from 'styled-components'
 import Layout from '../../components/layout'
-import { BiEditAlt } from 'react-icons/bi'
-import Recipe from '../../components/recipe'
-import Recipes from '../../components/recipe/Recipes'
 import Button from '../../components/button'
 import { useAuthState } from 'react-firebase-hooks/auth'
-import db, { auth } from '../../app/firebase'
-import { useEffect, useState } from 'react'
 import {
-  collection,
-  doc,
-  DocumentData,
-  getDoc,
-  getDocs,
-} from 'firebase/firestore'
+  auth,
+  fetchUser,
+  getAmountOfRecipes,
+  subscribeToUser,
+} from '../../app/firebase'
+import { useEffect, useState } from 'react'
+import { useParams } from 'react-router-dom'
+import { IUser } from '../../types'
 
 const UserPageStyled = styled.div`
   .photo {
@@ -59,48 +56,46 @@ const UserPageStyled = styled.div`
 `
 
 const UserPage = () => {
-  const [user, loading, error] = useAuthState(auth)
-
-  const [test, setTest] = useState()
+  const [user, setUser] = useState<IUser>()
+  const [recipesAmount, setRecipesAmount] = useState<number>()
+  const [loading, setLoading] = useState(true)
+  const [authUser, loadingAuthUser, error] = useAuthState(auth)
+  const { id } = useParams()
 
   useEffect(() => {
-    const getTest = async () => {
-      const id = 'dqINQtHekhzOeJD9z9z5'
-      const recipeDoc = doc(db, `recipes/${id}`)
-      const recipeSnapshot = await getDoc(recipeDoc).then(
-        async (d: DocumentData) => {
-          const { author } = d.data()
-          const userDoc = await getDoc(author).then(async (q: DocumentData) => {
-            q.data().subscribers.map(async (a: any) =>
-              console.log(await (await getDoc(a)).data())
-            )
-          })
-        }
-      )
-    }
+    if (!id || loadingAuthUser) return
 
-    getTest()
-  }, [])
+    fetchUser(id)
+      .then(res => {
+        getAmountOfRecipes(res?.ref).then(r => setRecipesAmount(r))
+        setUser(res?.data() as IUser)
+      })
+      .then(() => setLoading(false))
+  }, [loadingAuthUser])
+
+  const subscribe = () => {
+    id && subscribeToUser(id)
+  }
+
+  const doesBelongToCurrentUser = authUser?.uid === user?.id
 
   if (loading) return <div>Loading</div>
+  // load correct amount of recipes/subscribers
   return (
     <Layout>
       <UserPageStyled className="content">
         <div className="flex gap-small">
           <div className="photo">
-            <img src={user?.photoURL || '/images/'} />
+            <img src={user?.photoURL} />
             <div className="upload-picture">Upload picture</div>
           </div>
           <div className="info-section flex direction-column">
             <div className="flex align-end">
-              <input defaultValue="Username" />
-              <span>
-                <BiEditAlt />
-              </span>
+              <div className="fsize-2 weight-medium">{user?.name}</div>
             </div>
             <div>
-              <div>Recipes: 10</div>
-              <div>Subscribers: 405</div>
+              <div>Recipes: {recipesAmount || 0}</div>
+              <div>Subscribers: {user?.subscribers?.length || 0}</div>
             </div>
           </div>
         </div>
@@ -113,7 +108,19 @@ const UserPage = () => {
           <h3 className="inline-block frame">Last added to collection</h3>
           {/* <Recipes recipes={[{ name: 'd' }]} /> */}
         </div>
-        <div className="text-center">
+        <div className="flex justify-center gap-small">
+          {!doesBelongToCurrentUser && (
+            <Button
+              textColor="wheat"
+              background="darkPurple"
+              width="50%"
+              fontSize="1rem"
+              padding=".3 rem 0"
+              onClick={subscribe}
+            >
+              Subscribe
+            </Button>
+          )}
           <Button
             textColor="wheat"
             background="teal"

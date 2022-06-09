@@ -26,7 +26,7 @@ function App() {
         <Route path="/recipe/:id/comments" element={<CommentsPage />} />
         <Route path="/recipes" element={<RecipesPage />} />
         <Route path="/recipes/create" element={<CreateRecipePage />} />
-        <Route path="/user" element={<UserPage />} />
+        {/* <Route path="/user" element={<UserPage />} /> */}
         <Route path="/user/:id" element={<UserPage />} />
         <Route path="/signup" element={<SignupPage />} />
         <Route path="/signin" element={<SigninPage />} />

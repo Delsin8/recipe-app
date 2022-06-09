@@ -9,6 +9,13 @@ import {
   DocumentData,
   Timestamp,
   getDoc,
+  updateDoc,
+  arrayUnion,
+  arrayRemove,
+  refEqual,
+  DocumentReference,
+  query,
+  where,
 } from 'firebase/firestore'
 import {
   createUserWithEmailAndPassword,
@@ -19,6 +26,7 @@ import {
   signOut,
 } from 'firebase/auth'
 import { IComment, IRecipe, IUser } from '../types'
+import { database } from 'firebase-admin'
 
 const firebaseConfig = {
   apiKey: process.env.REACT_APP_API_KEY,
@@ -108,8 +116,9 @@ export const fetchUsers = async () => {
 
 export const fetchUser = async (userID: string) => {
   try {
-    const userDoc = doc(collection(db, `users/${userID}`))
-    return await getDoc(userDoc)
+    const userDoc = doc(db, `users/${userID}`)
+    const user = await getDoc(userDoc)
+    return user
   } catch (error) {
     console.log(error)
   }
@@ -141,6 +150,17 @@ export const createRecipe = async (recipe: IRecipe) => {
         addDoc(collection(db, `recipes/${data.id}/ingredients`), ingredient)
       )
     )
+  } catch (error) {
+    console.log(error)
+  }
+}
+
+export const getAmountOfRecipes = async (userRef?: DocumentReference) => {
+  if (!userRef) return
+  try {
+    const q = query(collection(db, 'recipes'), where('author', '==', userRef))
+    const querySnapshot = await getDocs(q)
+    return querySnapshot.docs.length
   } catch (error) {
     console.log(error)
   }
@@ -178,6 +198,33 @@ export const sendComment = async (comment: string, recipeID: string) => {
   } catch (error) {
     console.log(error)
   }
+}
+
+export const subscribeToUser = async (authorID: string) => {
+  if (!auth.currentUser || !authorID) return
+  const authorRef = doc(db, 'users', authorID)
+  const authorDoc = await getDoc(authorRef)
+  if (!authorDoc.exists()) return
+  // user
+  const currentUserRef = doc(db, 'users', auth.currentUser.uid)
+  const currentUserDoc = await getDoc(currentUserRef)
+  const currentUser: DocumentData = currentUserDoc.data()!
+
+  const isSubscribed = currentUser.subscribed_to?.some((a: DocumentReference) =>
+    refEqual(a, authorRef)
+  )
+  if (isSubscribed) {
+    return await updateDoc(currentUserRef, {
+      subscribed_to: arrayRemove(authorRef),
+    }).then(() =>
+      updateDoc(authorRef, { subscribers: arrayRemove(currentUserRef) })
+    )
+  }
+  await updateDoc(currentUserRef, {
+    subscribed_to: arrayUnion(authorRef),
+  }).then(() =>
+    updateDoc(authorRef, { subscribers: arrayUnion(currentUserRef) })
+  )
 }
 
 export default db

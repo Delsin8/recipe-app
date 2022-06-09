@@ -33,6 +33,8 @@ export interface IUser {
   photoURL?: string
   likes?: string[]
   dislikes?: string[]
+  subscribers?: string[]
+  subscribed_to?: string[]
 }
 
 export interface IComment {

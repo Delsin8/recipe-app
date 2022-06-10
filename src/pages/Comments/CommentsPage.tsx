@@ -7,6 +7,7 @@ import Comment from '../../components/comment'
 import Layout from '../../components/layout'
 import { IComment } from '../../types'
 import { v4 as uuidv4 } from 'uuid'
+import Loading from '../../components/loading'
 
 const CommentsPageStyled = styled.div`
   textarea {
@@ -40,10 +41,14 @@ const CommentsPage = () => {
   useEffect(() => {
     if (!id) return
     fetchComments(id)
-      .then(result => setComments(result))
-      .then(() => setLoading(true))
+      .then(result => {
+        setComments(result)
+        setLoading(false)
+      })
       .catch(err => console.log(err))
   }, [])
+
+  if (loading) return <Loading />
 
   return (
     <Layout>

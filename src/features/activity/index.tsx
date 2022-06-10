@@ -62,7 +62,6 @@ const Activity: React.FC<IActivity & { userImg?: string | null }> = ({
       break
   }
 
-  console.log(created_at)
   return (
     <ActivityStyled className="flex align-center gap-small">
       {/* picture */}

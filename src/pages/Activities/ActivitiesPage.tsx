@@ -6,6 +6,7 @@ import Layout from '../../components/layout'
 import Activity from '../../features/activity'
 import { IActivity } from '../../types'
 import { v4 as uuidv4 } from 'uuid'
+import Loading from '../../components/loading'
 
 const ActivitiesPageStyled = styled.div`
   .profile-picture {
@@ -30,14 +31,15 @@ const ActivitiesPage = () => {
     if (!user) return
 
     fetchActivities(user.uid)
-      .then(result => setActivities(result))
+      .then(result => {
+        setActivities(result)
+        setLoading(false)
+      })
       .then(() => markActivities(user.uid))
       .catch(err => console.log(err))
   }, [user])
 
-  // create scenarios when activities will be fired (create recipe, subscribe, like, add to collection)
-  // implement that
-  // add case where there are no activities (describe what activities exist and how to fire them)
+  if (loading) return <Loading />
 
   return (
     <Layout>

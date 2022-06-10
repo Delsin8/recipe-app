@@ -25,6 +25,7 @@ import {
   updateDoc,
 } from 'firebase/firestore'
 import db, { auth, createActivity } from '../../app/firebase'
+import Loading from '../../components/loading'
 
 const RecipePageStyled = styled.div`
   .t {
@@ -300,7 +301,7 @@ const RecipePage = () => {
     })
   }
 
-  if (loading) return <div>Loading</div>
+  if (loading) return <Loading />
 
   return (
     <Layout>

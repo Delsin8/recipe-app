@@ -9,6 +9,7 @@ import { fetchRecipes, fetchUsers } from '../../app/firebase'
 import RecipesPageStyled from './RecipesPageStyled'
 import Filter from '../../features/filter'
 import Pagination from '../../features/pagination'
+import Loading from '../../components/loading'
 
 const RecipesPage = () => {
   const [recipes, setRecipes] = useState<IRecipe[]>([])
@@ -42,7 +43,7 @@ const RecipesPage = () => {
   const indexOfLastCourse = currentPage * coursesPerPage
   const indexOfFirstCourse = indexOfLastCourse - coursesPerPage
 
-  if (loading) return <div>Loading</div>
+  if (loading) return <Loading />
 
   return (
     <Layout>

@@ -12,6 +12,7 @@ import {
 import { useEffect, useState } from 'react'
 import { useParams } from 'react-router-dom'
 import { IUser } from '../../types'
+import Loading from '../../components/loading'
 
 const UserPageStyled = styled.div`
   .photo {
@@ -80,8 +81,8 @@ const UserPage = () => {
 
   const doesBelongToCurrentUser = authUser?.uid === user?.id
 
-  if (loading) return <div>Loading</div>
-  // load correct amount of recipes/subscribers
+  if (loading) return <Loading />
+
   return (
     <Layout>
       <UserPageStyled className="content">

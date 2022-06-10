@@ -1,12 +1,12 @@
 import styled from 'styled-components'
 import { FiMenu } from 'react-icons/fi'
-import { BsBell } from 'react-icons/bs'
+import { BiNews } from 'react-icons/bi'
 import { useEffect, useState } from 'react'
 import { useAuthState } from 'react-firebase-hooks/auth'
 import db, { auth, signout } from '../../app/firebase'
 import Button from '../button'
 import { Link } from 'react-router-dom'
-import { doc, onSnapshot } from 'firebase/firestore'
+import { collection, doc, onSnapshot, query, where } from 'firebase/firestore'
 const HeaderStyled = styled.header`
   display: flex;
   justify-content: space-between;
@@ -29,7 +29,7 @@ const HeaderStyled = styled.header`
 
   .notifications-amount {
     position: absolute;
-    top: 0.6rem;
+    top: 0.75rem;
     right: 0;
 
     background: ${({ theme }) => theme.colors.teal};
@@ -87,19 +87,21 @@ const Header = () => {
 
   const isMobile = windowWidth < 769
   const [user, loading, error] = useAuthState(auth)
-  // const [notifications, setNotifications] = useState([])
+  const [activities, setActivities] = useState<number>()
 
-  // useEffect(() => {
+  useEffect(() => {
+    if (!user) return
+    const activitiesCol = collection(db, 'users', user.uid, 'activities')
+    const q = query(activitiesCol, where('checked', '==', false))
+    const unsubscribe = onSnapshot(q, snapshot => {
+      setActivities(snapshot.docs.length)
+    })
 
-  //   const userDoc = doc(db, `users/${user?.uid}`)
-  //   const unsubscribe = onSnapshot(userDoc, snapshot => {
-  //    snapshot.ref.type
-  //   })
-
-  //   return unsubscribe
-  // }, [user])
+    return unsubscribe
+  }, [user])
 
   if (loading) return <div>Loading</div>
+  // else if (error || !user) return <div>Something went wrong</div>
 
   return (
     <HeaderStyled>
@@ -109,10 +111,12 @@ const Header = () => {
             <h1 className="fsize-3">Recipe app</h1>
           </Link>
           <div className="icons-wrapper">
-            {/* <Link to="/notifications" className="pos-relative">
-              <BsBell className="icon bell fsize-3" />
-              <div className="notifications-amount">{notifications.length}</div>
-            </Link> */}
+            {user && (
+              <Link to={`/activities/${user.uid}`} className="pos-relative">
+                <BiNews className="icon bell fsize-3" />
+                <div className="notifications-amount">{activities}</div>
+              </Link>
+            )}
             <div className="pos-relative">
               <FiMenu
                 className="icon fsize-2 flex align-center"
@@ -171,12 +175,12 @@ const Header = () => {
             <div className="flex align-center gap-medium">
               {user ? (
                 <>
-                  {/* <Link
-                    to="/notifications"
+                  <Link
+                    to={`/activities/${user.uid}`}
                     className="pointer flex align-center"
                   >
-                    <BsBell />
-                  </Link> */}
+                    <BiNews />
+                  </Link>
                   <Link to="/user">
                     <div className="pointer">Profile</div>
                   </Link>

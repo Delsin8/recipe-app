@@ -8,7 +8,7 @@ import { Route, Routes } from 'react-router-dom'
 import RecipesPage from './pages/Recipes/RecipesPage'
 import UserPage from './pages/User/UserPage'
 import CommentsPage from './pages/Comments/CommentsPage'
-import NotificationsPage from './pages/Notifications/NotificationsPage'
+import ActivitiesPage from './pages/Activities/ActivitiesPage'
 import HomePage from './pages/Home/HomePage'
 import SigninPage from './pages/Auth/SigninPage'
 import SignupPage from './pages/Auth/SignupPage'
@@ -30,7 +30,7 @@ function App() {
         <Route path="/user/:id" element={<UserPage />} />
         <Route path="/signup" element={<SignupPage />} />
         <Route path="/signin" element={<SigninPage />} />
-        {/* <Route path="/notifications" element={<NotificationsPage />} /> */}
+        <Route path="/activities/:id" element={<ActivitiesPage />} />
 
         <Route path="*" element={<NotFoundPage />} />
       </Routes>

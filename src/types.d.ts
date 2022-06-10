@@ -7,6 +7,7 @@ export interface IRecipe {
   difficulty: string
   portion: number
   author?: DocumentReference
+  photo?: string
   ingredients?: IngredientInterface[]
   steps?: string[]
   tips?: string[]
@@ -43,6 +44,22 @@ export interface IComment {
   body: string
   created_at: Timestamp
 }
+
+export interface IActivity {
+  id?: string
+  user: string
+  type: ActivityType
+  checked: boolean
+  created_at: Timestamp
+  other: string
+  photo?: string
+}
+
+export type ActivityType =
+  | 'like'
+  | 'subscribe'
+  | 'create_recipe'
+  | 'add_to_collection'
 
 export type TagType =
   | 'Vegan'

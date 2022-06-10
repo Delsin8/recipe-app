@@ -8,7 +8,7 @@ import { IoPeopleOutline } from 'react-icons/io5'
 import Button from '../../components/button'
 import Ingredient from '../../features/recipe/Ingredient'
 import { gradient, custom_tags } from '../../custom-data'
-import { createRecipe } from '../../app/firebase'
+import { createActivity, createRecipe } from '../../app/firebase'
 
 const CreateRecipePageStyled = styled.div`
   .form-input {
@@ -122,7 +122,10 @@ const CreateRecipePage = () => {
       tags,
     }
 
-    createRecipe(recipe)
+    createRecipe(recipe).then(res => {
+      if (!res) return
+      createActivity('create_recipe', res)
+    })
   }
 
   return (

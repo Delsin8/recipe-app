@@ -4,6 +4,7 @@ import Button from '../../components/button'
 import { useAuthState } from 'react-firebase-hooks/auth'
 import {
   auth,
+  createActivity,
   fetchUser,
   getAmountOfRecipes,
   subscribeToUser,
@@ -74,7 +75,7 @@ const UserPage = () => {
   }, [loadingAuthUser])
 
   const subscribe = () => {
-    id && subscribeToUser(id)
+    id && subscribeToUser(id).then(() => createActivity('subscribe', id))
   }
 
   const doesBelongToCurrentUser = authUser?.uid === user?.id

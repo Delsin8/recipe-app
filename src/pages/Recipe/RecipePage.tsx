@@ -24,7 +24,7 @@ import {
   setDoc,
   updateDoc,
 } from 'firebase/firestore'
-import db, { auth } from '../../app/firebase'
+import db, { auth, createActivity } from '../../app/firebase'
 
 const RecipePageStyled = styled.div`
   .t {
@@ -189,12 +189,14 @@ const RecipePage = () => {
   }, [])
 
   const like = async () => {
-    const recipeDoc = doc(db, `recipes/${recipe?.id}`)
+    if (!recipe?.id) return
+
+    const recipeDoc = doc(db, `recipes/${recipe.id}`)
     runTransaction(db, async transaction => {
       return await transaction
         .get(recipeDoc)
         .then(async (data: DocumentData) => {
-          const ratingsCol = collection(db, `recipes/${recipe?.id}/ratings`)
+          const ratingsCol = collection(db, `recipes/${recipe.id}/ratings`)
           await getDocs(ratingsCol)
             .then(async rating => {
               if (!auth.currentUser) return
@@ -207,7 +209,7 @@ const RecipePage = () => {
 
               if (!candidate) {
                 return await addDoc(
-                  collection(db, `recipes/${recipe?.id}/ratings`),
+                  collection(db, `recipes/${recipe.id}/ratings`),
                   {
                     user: currentUserID,
                     type: 'like',
@@ -233,12 +235,14 @@ const RecipePage = () => {
             })
             .then(() =>
               updateDoc(doc(db, `users/${auth.currentUser?.uid}`), {
-                likes: arrayUnion(recipe?.id),
-                dislikes: arrayRemove(recipe?.id),
+                likes: arrayUnion(recipe.id),
+                dislikes: arrayRemove(recipe.id),
               })
             )
         })
     })
+      .then(() => createActivity('like', recipe.id!))
+      .catch(err => console.log(err))
   }
 
   const dislike = async () => {

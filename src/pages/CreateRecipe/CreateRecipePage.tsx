@@ -9,6 +9,7 @@ import Button from '../../components/button'
 import Ingredient from '../../features/recipe/Ingredient'
 import { gradient, custom_tags } from '../../custom-data'
 import { createActivity, createRecipe } from '../../app/firebase'
+import { notifyFailure, notifySuccess } from '../../components/toast'
 
 const CreateRecipePageStyled = styled.div`
   .form-input {
@@ -49,12 +50,12 @@ const CreateRecipePageStyled = styled.div`
     border-radius: 1rem;
 
     textarea {
-      width: 100%;
       background: none;
       border-radius: 0.5rem;
       outline: none;
       border: 1px solid black;
       color: black;
+      padding: 0.5rem;
 
       &::placeholder {
         color: black;
@@ -81,6 +82,7 @@ const CreateRecipePage = () => {
   const [cookingTime, setCookingTime] = useState<number>()
   const [portion, setPortion] = useState<number>()
   const [difficulty, setDifficulty] = useState<DifficultyType>()
+  const [image, setImage] = useState<File | null>()
   const [ingredients, setIngredients] = useState<IngredientInterface[]>([])
   const [steps, setSteps] = useState<string[]>([])
   const [tips, setTips] = useState<string[]>([])
@@ -109,23 +111,38 @@ const CreateRecipePage = () => {
     return false
   }
 
+  const handleSetTags = (tag: TagType) => {
+    const includes = tags.includes(tag)
+    if (includes) return setTags(tags.filter(t => t !== tag))
+    setTags([...tags, tag])
+  }
+
   const handleCreateRecipe = () => {
-    if (!name || !cookingTime || !difficulty) return
-    const recipe: IRecipe = {
+    if (!name || !cookingTime || !difficulty)
+      return notifyFailure('Name, cooking time and difficulty must be provided')
+
+    interface RecipeInterface extends IRecipe {
+      image?: File | null
+    }
+    const recipe: RecipeInterface = {
       name,
       cooking_time: cookingTime,
       difficulty,
       portion: portion || 1,
+      image,
       ingredients,
       tips,
       steps,
       tags,
     }
 
-    createRecipe(recipe).then(res => {
-      if (!res) return
-      createActivity('create_recipe', res)
-    })
+    createRecipe(recipe)
+      .then(res => {
+        if (!res) return
+        createActivity('create_recipe', res)
+      })
+      .then(() => notifySuccess('You created a recipe'))
+      .catch((err: Error) => notifyFailure(err.message))
   }
 
   return (
@@ -168,6 +185,16 @@ const CreateRecipePage = () => {
               {d}
             </div>
           ))}
+        </div>
+        <div>
+          Image:{' '}
+          <input
+            type="file"
+            accept="image/*"
+            className="upload-picture"
+            placeholder="Upload picture"
+            onChange={e => setImage(e.target.files![0])}
+          />
         </div>
         <div className="flex direction-column gap-small">
           <h3>Ingredients</h3>
@@ -236,7 +263,7 @@ const CreateRecipePage = () => {
                 className={`option tag pointer ${
                   isActiveTag(t) ? 'active-option' : ''
                 }`}
-                onClick={() => setTags(prevState => [...prevState, t])}
+                onClick={() => handleSetTags(t)}
               >
                 {t}
               </div>

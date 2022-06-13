@@ -5,15 +5,23 @@ import { signupWithEmailAndPassword } from '../../app/firebase'
 import { useState } from 'react'
 import { Link } from 'react-router-dom'
 import { gradient } from '../../custom-data'
+import { notifyFailure, notifySuccess } from '../../components/toast'
 
 const SignupPage = () => {
   const [nickname, setNickname] = useState('')
   const [email, setEmail] = useState('')
   const [password, setPassword] = useState('')
+
   const signup = () => {
-    // console.log(nickname)
     signupWithEmailAndPassword(nickname, email, password)
+      .then(() => notifySuccess('Successfully registered'))
+      .catch(() =>
+        notifyFailure(
+          'Something went wrong. This email address was already taken or your password is not reliable'
+        )
+      )
   }
+
   return (
     <Layout>
       <AuthStyled className="content">
@@ -40,10 +48,6 @@ const SignupPage = () => {
             value={password}
             onChange={e => setPassword(e.target.value)}
           />
-        </div>
-        <div className="form-input flex align-center gap-small fsize-3 weight-light">
-          <img src="/images/svg/password.svg" />
-          <input placeholder="Repeat password" />
         </div>
         <div>
           <Button

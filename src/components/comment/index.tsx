@@ -1,8 +1,8 @@
 import styled from 'styled-components'
 import { IComment } from '../../types'
-import Layout from '../layout'
 import { GoThumbsup, GoThumbsdown } from 'react-icons/go'
 import { useParams } from 'react-router-dom'
+import { default_user_photo } from '../../custom-data'
 
 const CommentStyled = styled.div`
   .container {
@@ -48,26 +48,24 @@ const Comment: React.FC<IComment> = ({ body, author, created_at }) => {
   }
 
   return (
-    <Layout>
-      <CommentStyled>
-        <div className={`container flex gap-small ${defineStyle()}`}>
-          <div className="profile-picture">
-            <img src={`${photoURL || 'DEFAULT_IMAEGE'}`} />
-          </div>
-          <div>
-            <div className="flex align-center gap-small">
-              <div className="username">{name}</div>
-              {(defineStyle() === 'liked' && <GoThumbsup />) ||
-                (defineStyle() === 'disliked' && <GoThumbsdown />)}
-              <div className="fsize-negative-3" style={{ opacity: '0.5' }}>
-                {created_at.toDate().toLocaleString()}
-              </div>
-            </div>
-            <div className="comment-body">{body}</div>
-          </div>
+    <CommentStyled>
+      <div className={`container flex gap-small ${defineStyle()}`}>
+        <div className="profile-picture">
+          <img src={`${photoURL || default_user_photo}`} />
         </div>
-      </CommentStyled>
-    </Layout>
+        <div>
+          <div className="flex align-center gap-small">
+            <div className="username">{name}</div>
+            {(defineStyle() === 'liked' && <GoThumbsup />) ||
+              (defineStyle() === 'disliked' && <GoThumbsdown />)}
+            <div className="fsize-negative-3" style={{ opacity: '0.5' }}>
+              {created_at.toDate().toLocaleString()}
+            </div>
+          </div>
+          <div className="comment-body">{body}</div>
+        </div>
+      </div>
+    </CommentStyled>
   )
 }
 

@@ -5,8 +5,8 @@ import { BsClockHistory } from 'react-icons/bs'
 import { IoPeopleOutline } from 'react-icons/io5'
 import { GoThumbsup, GoThumbsdown } from 'react-icons/go'
 
-import { Link, useLocation, useParams } from 'react-router-dom'
-import { IRecipe } from '../../types'
+import { Link, useLocation, useNavigate, useParams } from 'react-router-dom'
+import { IngredientInterface, IRecipe } from '../../types'
 import { useEffect, useState } from 'react'
 
 import { v4 as uuidv4 } from 'uuid'
@@ -20,12 +20,19 @@ import {
   DocumentData,
   getDoc,
   getDocs,
+  onSnapshot,
   runTransaction,
   setDoc,
   updateDoc,
 } from 'firebase/firestore'
-import db, { auth, createActivity } from '../../app/firebase'
+import db, {
+  addRecipeToCollection,
+  auth,
+  checkIfBelongsToCollection,
+  createActivity,
+} from '../../app/firebase'
 import Loading from '../../components/loading'
+import { default_recipe_photo } from '../../custom-data'
 
 const RecipePageStyled = styled.div`
   .t {
@@ -57,6 +64,7 @@ const RecipePageStyled = styled.div`
       border-radius: 2rem;
       height: 100%;
       width: 100%;
+      aspect-ratio: 16/9;
     }
   }
 
@@ -88,6 +96,7 @@ const RecipePageStyled = styled.div`
     border: none;
     border-radius: 0.25rem;
     text-align: center;
+    outline: none;
   }
 
   .steps-section {
@@ -122,14 +131,14 @@ const RecipePageStyled = styled.div`
     width: 25%;
     background-color: ${({ theme }) => theme.colors.seaGreen};
     border-radius: 1rem 0 0 1rem;
-    padding: 0.3rem;
+    padding: 0.4rem;
   }
   .dislike {
     width: 25%;
     background-color: ${({ theme }) => theme.colors.darkPurple};
     color: white;
     border-radius: 0 1rem 1rem 0;
-    padding: 0.3rem;
+    padding: 0.4rem;
   }
 
   .tips-section {
@@ -144,53 +153,47 @@ const RecipePageStyled = styled.div`
 
 const RecipePage = () => {
   const [recipe, setRecipe] = useState<IRecipe>()
+  const [ingredients, setIngredients] = useState<IngredientInterface[]>([])
+  const [portions, setPortions] = useState<number>()
   const [loading, setLoading] = useState(true)
+
   const { id } = useParams()
   const { pathname } = useLocation()
+  const navigate = useNavigate()
 
   useEffect(() => {
-    const fetchRecipe = async () => {
-      const recipeDoc = doc(db, `recipes/${id}`)
+    const recipeDoc = doc(db, `recipes/${id}`)
 
-      const snapshot: IRecipe = await getDoc(recipeDoc).then(
-        async (r: DocumentData) => {
-          const ingredientCol = collection(r.ref, 'ingredients')
-          const ingredientsSnapshot = await getDocs(ingredientCol)
-          const ingredients = ingredientsSnapshot.docs.map(i => i.data())
+    const unsubscribe = () =>
+      onSnapshot(recipeDoc, snapshot => {
+        const result = { ...snapshot.data(), id: snapshot.id } as IRecipe
+        setRecipe(result)
+        setPortions(result.portion)
+        setLoading(false)
+      })
 
-          const stepCol = collection(r.ref, 'steps')
-          const stepsSnapshot = await getDocs(stepCol)
-          const steps = stepsSnapshot.docs.map(i => i.data())
+    const fetchIngredients = async () => {
+      try {
+        const ingredientCol = collection(recipeDoc, 'ingredients')
+        const ingredientsSnapshot = await getDocs(ingredientCol)
+        const ingredients = ingredientsSnapshot.docs.map(i =>
+          i.data()
+        ) as IngredientInterface[]
 
-          const tipCol = collection(r.ref, 'tips')
-          const tipsSnapshot = await getDocs(tipCol)
-          const tips = tipsSnapshot.docs.map(i => i.data())
-
-          const result: IRecipe = {
-            ...r.data(),
-            id: r.id,
-            ingredients,
-            steps,
-            tips,
-          }
-          return result
-        }
-      )
-
-      // const snapshot: DocumentData = await getDoc(recipeDoc)
-      // const data = snapshot.data()
-      // const recipeData = snapshot.data()
-      console.log(snapshot)
-      if (snapshot) {
-        setRecipe(snapshot)
-      } else console.log('Incorrect id of the recipe')
+        setIngredients(ingredients)
+      } catch (error) {
+        throw new Error()
+      }
     }
 
-    fetchRecipe().then(() => setLoading(false))
+    fetchIngredients().catch(err => console.log(err))
+
+    return unsubscribe()
   }, [])
 
   const like = async () => {
     if (!recipe?.id) return
+    if (!auth.currentUser) return navigate('/signin')
 
     const recipeDoc = doc(db, `recipes/${recipe.id}`)
     runTransaction(db, async transaction => {
@@ -200,8 +203,6 @@ const RecipePage = () => {
           const ratingsCol = collection(db, `recipes/${recipe.id}/ratings`)
           await getDocs(ratingsCol)
             .then(async rating => {
-              if (!auth.currentUser) return
-
               const currentUserID = auth.currentUser?.uid
 
               const candidate = rating.docs.find(
@@ -247,6 +248,9 @@ const RecipePage = () => {
   }
 
   const dislike = async () => {
+    if (!recipe?.id) return
+    if (!auth.currentUser) return navigate('/signin')
+
     const recipeDoc = doc(db, `recipes/${recipe?.id}`)
     runTransaction(db, async transaction => {
       return await transaction
@@ -255,8 +259,6 @@ const RecipePage = () => {
           const ratingsCol = collection(db, `recipes/${recipe?.id}/ratings`)
           await getDocs(ratingsCol)
             .then(async rating => {
-              if (!auth.currentUser) return
-
               const currentUserID = auth.currentUser?.uid
 
               const candidate = rating.docs.find(
@@ -301,13 +303,34 @@ const RecipePage = () => {
     })
   }
 
+  const addToCollection = () => {
+    const recipeID = recipe?.id
+    if (!recipeID) return
+    addRecipeToCollection(recipeID)
+      .then(() => checkIfBelongsToCollection(recipeID))
+      .then(exists => {
+        exists && createActivity('add_to_collection', recipeID)
+      })
+  }
+
+  const getServings = (ingredient: IngredientInterface) => {
+    if (!portions || !recipe?.portion) return ingredient.amount
+    const singlePortion = ingredient.amount / recipe?.portion
+    const calculatedPortion = singlePortion * portions
+    return `${calculatedPortion} ${
+      calculatedPortion === 1
+        ? ingredient.measure_method
+        : ingredient.measure_method + 's'
+    }`
+  }
+
   if (loading) return <Loading />
 
   return (
     <Layout>
       <RecipePageStyled className="content">
         <div className="t">
-          <img src="https://www.zastavki.com/pictures/1280x720/2009/Food___Pizza_Pizza_011915_26.jpg" />
+          <img src={`${recipe?.photo ? recipe.photo : default_recipe_photo}`} />
           <div className="s">
             <div className="first">{recipe?.name}</div>
             <div className="second">Difficulty: {recipe?.difficulty}</div>
@@ -321,7 +344,7 @@ const RecipePage = () => {
           </div>
           <div className="flex align-center gap-small">
             <IoPeopleOutline />
-            <div>Portion for 2</div>
+            <div>Portion for {recipe?.portion}</div>
           </div>
         </div>
         <div className="text-center">
@@ -331,6 +354,7 @@ const RecipePage = () => {
             fontSize="1.25rem"
             width="100%"
             padding=".4rem 0"
+            onClick={addToCollection}
           >
             Add to collection
           </Button>
@@ -338,14 +362,11 @@ const RecipePage = () => {
         {/* ingredients */}
         <div className="ingredients-section">
           <h3>Ingredients</h3>
-          {recipe?.ingredients && recipe.ingredients.length > 0 ? (
-            recipe?.ingredients.map(i => (
+          {ingredients.length > 0 ? (
+            ingredients.map(i => (
               <div className="ingredient" key={uuidv4()}>
                 <div>{i.name}</div>
-                <div>
-                  {i.amount}
-                  {i.measure_method}
-                </div>
+                <div>{getServings(i)}</div>
               </div>
             ))
           ) : (
@@ -355,7 +376,12 @@ const RecipePage = () => {
         <div className="text-center">
           Number of servings{' '}
           <span>
-            <input type="number" className="servings-input" defaultValue={2} />
+            <input
+              type="number"
+              className="servings-input"
+              value={portions}
+              onChange={e => setPortions(e.target.valueAsNumber)}
+            />
           </span>
         </div>
         {/* steps */}
@@ -375,9 +401,8 @@ const RecipePage = () => {
           </div>
         </div>
         <div>
-          Author:{' '}
-          <Link to="" className="link frame">
-            Username
+          <Link to={`/user/${recipe?.author}`} className="link frame">
+            Author
           </Link>
         </div>
         <div className="flex justify-center align-center">
@@ -394,7 +419,7 @@ const RecipePage = () => {
               <h3>Tips</h3>
               <ul>
                 {recipe.tips.map(l => (
-                  <li key={`l_${l}`}>{l}</li>
+                  <li key={uuidv4()}>{l}</li>
                 ))}
               </ul>
             </>

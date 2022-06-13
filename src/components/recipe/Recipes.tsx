@@ -9,8 +9,13 @@ const RecipesStyled = styled.div<{ type: 'grid' | 'flex' }>`
     type === 'flex'
       ? `display: flex; gap: 0.5rem;`
       : `display: grid;
-  grid-template-columns: repeat(2, 1fr);
-  grid-gap: 0.5rem;
+        grid-template-columns: repeat(2, 1fr);
+        grid-gap: 0.5rem;
+
+      @media (min-width: 768px) {
+        grid-template-columns: repeat(3, 1fr);
+        grid-gap: 1rem;
+      }
   `}
 `
 

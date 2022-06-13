@@ -17,18 +17,19 @@ import {
   query,
   where,
   writeBatch,
-  runTransaction,
 } from 'firebase/firestore'
 import {
   createUserWithEmailAndPassword,
   getAuth,
-  onAuthStateChanged,
   signInWithEmailAndPassword,
   updateProfile,
   signOut,
 } from 'firebase/auth'
 import { ActivityType, IActivity, IComment, IRecipe, IUser } from '../types'
-import { database } from 'firebase-admin'
+import { ref, getStorage, uploadBytes, getDownloadURL } from 'firebase/storage'
+import { v4 as uuidv4 } from 'uuid'
+import isImage from '../functions/isImage'
+import { default_recipe_photo, default_user_photo } from '../custom-data'
 
 const firebaseConfig = {
   apiKey: process.env.REACT_APP_API_KEY,
@@ -45,6 +46,8 @@ const db = getFirestore(app)
 
 export const auth = getAuth(app)
 
+export const storage = getStorage(app)
+
 export const signupWithEmailAndPassword = async (
   name: string,
   email: string,
@@ -55,21 +58,21 @@ export const signupWithEmailAndPassword = async (
       .then(async r => {
         await updateProfile(auth.currentUser!, {
           displayName: name,
-          photoURL:
-            'https://cambodiaict.net/wp-content/uploads/2019/12/computer-icons-user-profile-google-account-photos-icon-account.jpg',
+          photoURL: default_user_photo,
         })
         await setDoc(doc(db, `users/${r.user.uid}`), {
           id: r.user.uid,
           name: r.user.displayName,
-          photoURL:
-            'https://cambodiaict.net/wp-content/uploads/2019/12/computer-icons-user-profile-google-account-photos-icon-account.jpg',
+          photoURL: default_user_photo,
         })
       })
       .catch(error => {
         console.log(error)
+        throw new Error()
       })
   } catch (error) {
     console.log(error)
+    throw new Error()
   }
 }
 export const signinWithEmailAndPassword = async (
@@ -80,6 +83,7 @@ export const signinWithEmailAndPassword = async (
     await signInWithEmailAndPassword(auth, email, password)
   } catch (error) {
     console.log(error)
+    throw new Error()
   }
 }
 
@@ -88,6 +92,7 @@ export const signout = async () => {
     await signOut(auth)
   } catch (error) {
     console.log(error)
+    throw new Error()
   }
 }
 
@@ -126,36 +131,65 @@ export const fetchUser = async (userID: string) => {
   }
 }
 
-export const createRecipe = async (recipe: IRecipe) => {
+export const createRecipe = async (
+  recipe: IRecipe & { image?: File | null }
+) => {
+  if (!auth.currentUser) throw new Error('You are not authenticated')
+
   try {
     const {
       cooking_time,
       difficulty,
       name,
       ingredients,
+      image,
       steps,
       tags,
       tips,
       portion,
     } = recipe
+
+    const isAppropriateImage = image && isImage(image)
+
+    const getFinalImage = async () => {
+      let finalImage = default_recipe_photo
+
+      if (isAppropriateImage) {
+        const imageRef = ref(storage, `recipe_images/${uuidv4()}_${image.name}`)
+        const dq = await uploadBytes(imageRef, image).then(async snap => {
+          return getDownloadURL(snap.ref).then(res => res)
+        })
+        return Promise.resolve(dq)
+      }
+
+      return finalImage
+    }
+
+    const finalImage = await getFinalImage()
     const d = await addDoc(collection(db, 'recipes'), {
-      cooking_time,
+      cooking_time: cooking_time > 0 ? cooking_time : 1,
+      author: auth.currentUser.uid,
       difficulty,
       name,
       steps,
       tags,
       tips,
       portion,
+      photo: finalImage,
+    }).then(r => {
+      ingredients?.map(
+        async ingredient =>
+          await addDoc(
+            collection(db, `recipes/${r.id}/ingredients`),
+            ingredient
+          ).then()
+      )
+      return r.id
     })
 
-    ingredients?.map(
-      async ingredient =>
-        await addDoc(collection(db, `recipes/${d.id}/ingredients`), ingredient)
-    )
-
-    return d.id
+    return d
   } catch (error) {
-    console.log(error)
+    throw new Error('Something went wrong')
   }
 }
 
@@ -194,11 +228,22 @@ export const sendComment = async (comment: string, recipeID: string) => {
     return
   }
   try {
-    await addDoc(collection(db, `recipes/${recipeID}/comments`), {
+    const docRef = doc(db, 'recipes', recipeID)
+    const recipe = await getDoc(docRef)
+    if (!recipe.exists()) {
+      throw new Error("Recipe with that ID doesn't exist")
+    }
+
+    const res = addDoc(collection(db, 'recipes', recipeID, 'comments'), {
       body: comment,
       author: doc(db, 'users', auth.currentUser.uid),
       created_at: new Date(),
+    }).then(async d => {
+      const result = await getDoc(d)
+      return result.data() as IComment
     })
+
+    return Promise.resolve(res)
   } catch (error) {
     console.log(error)
   }
@@ -276,6 +321,61 @@ export const subscribeToUser = async (authorID: string) => {
   }).then(() =>
     updateDoc(authorRef, { subscribers: arrayUnion(currentUserRef) })
   )
+}
+
+export const addRecipeToCollection = async (recipeID?: string) => {
+  if (!auth.currentUser || !recipeID) return
+  try {
+    const userRef = doc(db, 'users', auth.currentUser.uid)
+    const user = (await getDoc(userRef).then(d => d.data())) as IUser
+
+    if (user.collection?.includes(recipeID)) {
+      await updateDoc(userRef, { collection: arrayRemove(recipeID) })
+    } else await updateDoc(userRef, { collection: arrayUnion(recipeID) })
+  } catch (error) {
+    console.log(error)
+  }
+}
+
+export const checkIfBelongsToCollection = async (recipeID: string) => {
+  if (!auth.currentUser || !recipeID) return
+  try {
+    const userRef = doc(db, 'users', auth.currentUser.uid)
+    const user = (await getDoc(userRef).then(d => d.data())) as IUser
+
+    if (!user.collection?.includes(recipeID)) {
+      return false
+    }
+    return true
+  } catch (error) {
+    console.log(error)
+  }
+}
+
+export const uploadImage = async (image: FileList | null) => {
+  if (!auth.currentUser) throw new Error('You are not authenticated')
+  if (!image?.length || !image[0] || !isImage(image![0]))
+    throw new Error('Please choose an image')
+
+  try {
+    const img = image[0]
+
+    const imageRef = ref(storage, `user_images/${uuidv4()}_${img.name}`)
+    uploadBytes(imageRef, img).then(snap => {
+      getDownloadURL(snap.ref).then(async res => {
+        await updateProfile(auth.currentUser!, { photoURL: res }).then(
+          async () => {
+            const userRef = doc(db, 'users', auth.currentUser!.uid)
+            await updateDoc(userRef, { photoURL: res })
+          }
+        )
+      })
+    })
+  } catch (error) {
+    throw new Error(
+      'Something went wrong, please try again with different image'
+    )
+  }
 }
 
 export default db

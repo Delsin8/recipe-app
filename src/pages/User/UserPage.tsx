@@ -2,17 +2,20 @@ import styled from 'styled-components'
 import Layout from '../../components/layout'
 import Button from '../../components/button'
 import { useAuthState } from 'react-firebase-hooks/auth'
-import {
+import db, {
   auth,
   createActivity,
   fetchUser,
   getAmountOfRecipes,
   subscribeToUser,
+  uploadImage,
 } from '../../app/firebase'
 import { useEffect, useState } from 'react'
-import { useParams } from 'react-router-dom'
+import { useNavigate, useParams } from 'react-router-dom'
 import { IUser } from '../../types'
 import Loading from '../../components/loading'
+import { doc, onSnapshot } from 'firebase/firestore'
+import { notifyFailure } from '../../components/toast'
 
 const UserPageStyled = styled.div`
   .photo {
@@ -24,18 +27,6 @@ const UserPageStyled = styled.div`
       height: 100%;
       width: 100%;
       border-radius: 50%;
-    }
-
-    .upload-picture {
-      position: absolute;
-      left: 50%;
-      bottom: 1rem;
-      transform: translate(-50%, 0);
-
-      font-size: 0.6rem;
-      background-color: ${({ theme }) => theme.colors.tan};
-      padding: 2px;
-      white-space: nowrap;
     }
   }
 
@@ -62,24 +53,41 @@ const UserPage = () => {
   const [recipesAmount, setRecipesAmount] = useState<number>()
   const [loading, setLoading] = useState(true)
   const [authUser, loadingAuthUser, error] = useAuthState(auth)
+
   const { id } = useParams()
+  const navigate = useNavigate()
 
   useEffect(() => {
     if (!id || loadingAuthUser) return
 
-    fetchUser(id)
-      .then(res => {
-        getAmountOfRecipes(res?.ref).then(r => setRecipesAmount(r))
-        setUser(res?.data() as IUser)
+    const userRef = doc(db, 'users', id)
+    const unsubscribe = () =>
+      onSnapshot(userRef, snap => {
+        getAmountOfRecipes(snap?.ref).then(r => setRecipesAmount(r))
+        setUser(snap?.data() as IUser)
+        setLoading(false)
       })
-      .then(() => setLoading(false))
-  }, [loadingAuthUser])
+
+    return unsubscribe()
+  }, [loadingAuthUser, id])
 
   const subscribe = () => {
-    id && subscribeToUser(id).then(() => createActivity('subscribe', id))
+    if (!authUser) return navigate('/signin')
+    id &&
+      subscribeToUser(id).then(() => {
+        !isSubscribed && createActivity('subscribe', id)
+      })
   }
 
   const doesBelongToCurrentUser = authUser?.uid === user?.id
+  const isSubscribed =
+    authUser?.uid && user?.subscribers?.find(s => s.id === authUser.uid)
+
+  const handleUploadImage = (e: React.ChangeEvent<HTMLInputElement>) => {
+    uploadImage(e.currentTarget.files).catch((err: Error) =>
+      notifyFailure(err.message)
+    )
+  }
 
   if (loading) return <Loading />
 
@@ -89,7 +97,6 @@ const UserPage = () => {
         <div className="flex gap-small">
           <div className="photo">
             <img src={user?.photoURL} />
-            <div className="upload-picture">Upload picture</div>
           </div>
           <div className="info-section flex direction-column">
             <div className="flex align-end">
@@ -120,19 +127,21 @@ const UserPage = () => {
               padding=".3 rem 0"
               onClick={subscribe}
             >
-              Subscribe
+              {isSubscribed ? 'Unsubscribe' : 'Subscribe'}
             </Button>
           )}
-          <Button
-            textColor="wheat"
-            background="teal"
-            width="50%"
-            fontSize="1rem"
-            padding=".3 rem 0"
-          >
-            All recipes
-          </Button>
         </div>
+        {doesBelongToCurrentUser && (
+          <div>
+            <h5>Upload image</h5>
+            <input
+              type="file"
+              accept="image/*"
+              placeholder="Upload picture"
+              onChange={handleUploadImage}
+            />
+          </div>
+        )}
       </UserPageStyled>
     </Layout>
   )

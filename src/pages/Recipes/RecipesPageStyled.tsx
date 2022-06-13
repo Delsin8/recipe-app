@@ -1,22 +1,6 @@
 import styled from 'styled-components'
 
 const RecipesPageStyled = styled.div`
-  .filter {
-    //
-    margin: 0 auto;
-    width: 90%;
-    //
-    padding: 1rem;
-    background-color: ${({ theme }) => theme.colors.wheat};
-    border-radius: 1rem;
-
-    .filter-section {
-      .tags {
-        flex-basis: fit-content;
-      }
-    }
-  }
-
   .recipes {
     img {
       width: 100%;
@@ -31,6 +15,7 @@ const RecipesPageStyled = styled.div`
     border-bottom: 1px solid grey;
 
     input {
+      width: 100%;
       background: none;
       outline: none;
       border: none;

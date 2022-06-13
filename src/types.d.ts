@@ -31,11 +31,12 @@ export interface IFilter {
 export interface IUser {
   id: string
   name: string
+  collection: string[]
   photoURL?: string
   likes?: string[]
   dislikes?: string[]
-  subscribers?: string[]
-  subscribed_to?: string[]
+  subscribers?: DocumentReference[]
+  subscribed_to?: DocumentReference[]
 }
 
 export interface IComment {

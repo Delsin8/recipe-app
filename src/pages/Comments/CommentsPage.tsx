@@ -1,13 +1,15 @@
 import { useEffect, useState } from 'react'
 import { useParams } from 'react-router-dom'
 import styled from 'styled-components'
-import { fetchComments, sendComment } from '../../app/firebase'
+import db, { auth, fetchComments, sendComment } from '../../app/firebase'
 import Button from '../../components/button'
 import Comment from '../../components/comment'
 import Layout from '../../components/layout'
 import { IComment } from '../../types'
 import { v4 as uuidv4 } from 'uuid'
 import Loading from '../../components/loading'
+import { useAuthState } from 'react-firebase-hooks/auth'
+import { collection, doc, onSnapshot } from 'firebase/firestore'
 
 const CommentsPageStyled = styled.div`
   textarea {
@@ -22,13 +24,17 @@ const CommentsPageStyled = styled.div`
       opacity: 0.7;
     }
   }
+
+  @media (min-width: 992px) {
+    button {
+      font-size: 1.1rem;
+    }
+  }
 `
 
-const lorem =
-  'Lorem ipsum, dolor sit amet consectetur adipisicing elit. Dolorem at eius, enim, perferendis incidunt officiis odio quibusdam ex minima molestias non. Eum, explicabo? Distinctio, reprehenderit deserunt voluptatum impedit repellat fugit!'
-
 const CommentsPage = () => {
-  const [comments, setComments] = useState<IComment[]>()
+  const [user, userLoading, error] = useAuthState(auth)
+  const [comments, setComments] = useState<IComment[]>([])
   const [loading, setLoading] = useState(true)
   const [commentInput, setCommentInput] = useState('')
   const { id } = useParams()
@@ -36,13 +42,18 @@ const CommentsPage = () => {
   const addComment = () => {
     if (!commentInput || !id) return
     sendComment(commentInput, id)
+      .then(res => {
+        res && setComments(prev => [...prev, res])
+      })
+      .catch(err => console.log(err))
   }
 
   useEffect(() => {
     if (!id) return
+
     fetchComments(id)
       .then(result => {
-        setComments(result)
+        result && setComments(result)
         setLoading(false)
       })
       .catch(err => console.log(err))
@@ -52,18 +63,24 @@ const CommentsPage = () => {
 
   return (
     <Layout>
-      <CommentsPageStyled>
-        <div className="flex direction-column gap-small">
-          <textarea
-            rows={3}
-            value={commentInput}
-            onChange={e => setCommentInput(e.target.value)}
-            placeholder="Start typing your comment"
-          />
-          <Button textColor="wheat" background="seaGreen" onClick={addComment}>
-            Send comment
-          </Button>
-        </div>
+      <CommentsPageStyled className="content">
+        {user && (
+          <div className="flex direction-column gap-small">
+            <textarea
+              rows={3}
+              value={commentInput}
+              onChange={e => setCommentInput(e.target.value)}
+              placeholder="Start typing your comment"
+            />
+            <Button
+              textColor="wheat"
+              background="seaGreen"
+              onClick={addComment}
+            >
+              Send comment
+            </Button>
+          </div>
+        )}
         {comments?.map(c => (
           <Comment key={uuidv4()} {...c} />
         ))}

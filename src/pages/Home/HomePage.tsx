@@ -22,14 +22,12 @@ const recipe: IRecipe = {
 const HomePage = () => {
   return (
     <Layout>
-      {/* slider test */}
       <Carousel>
         <Recipes
           type="flex"
           recipes={[recipe, recipe, recipe, recipe, recipe, recipe]}
         />
       </Carousel>
-      {/* slider test end */}
       <HomePageStyled className="content">
         <div>
           <h3 className="weight-extra-light">Last added</h3>

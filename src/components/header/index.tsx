@@ -3,16 +3,23 @@ import { FiMenu } from 'react-icons/fi'
 import { BiNews } from 'react-icons/bi'
 import { useEffect, useState } from 'react'
 import { useAuthState } from 'react-firebase-hooks/auth'
-import db, { auth, signout } from '../../app/firebase'
+import db, { auth, markActivities, signout } from '../../app/firebase'
 import Button from '../button'
 import { Link } from 'react-router-dom'
 import { collection, doc, onSnapshot, query, where } from 'firebase/firestore'
+import { notifyFailure, notifySuccess } from '../toast'
+import { IActivity } from '../../types'
+import Activity from '../../features/activity'
+import { v4 as uuidv4 } from 'uuid'
+import { orderBy } from 'lodash'
+import { BsGithub } from 'react-icons/bs'
+
 const HeaderStyled = styled.header`
   display: flex;
   justify-content: space-between;
   align-items: center;
   margin: 0;
-  padding: 0.75rem 1.5rem;
+  padding: 1rem;
   background-color: ${({ theme }) => theme.colors.brown};
 
   h1 {
@@ -70,11 +77,40 @@ const HeaderStyled = styled.header`
       }
     }
   }
+
+  .activity-window {
+    position: absolute;
+    top: 1rem;
+    right: 1rem;
+
+    background: ${({ theme }) => theme.colors.wheat};
+    border-radius: 1rem;
+    padding: 0.75rem;
+
+    max-height: 400px;
+    overflow-y: auto;
+
+    z-index: 100;
+  }
+
+  @media (min-width: 992px) {
+    padding: 1rem 10%;
+  }
+  @media (min-width: 1200px) {
+    padding: 1rem 12%;
+  }
+  @media (min-width: 1400px) {
+    padding: 1rem 20%;
+  }
 `
 
 const Header = () => {
-  const [windowWidth, setWindowWidth] = useState<number>(window.innerWidth)
+  const [user, loading, error] = useAuthState(auth)
   const [openMenu, setOpenMenu] = useState(false)
+  const [activities, setActivities] = useState<IActivity[]>([])
+  const [windowWidth, setWindowWidth] = useState<number>(window.innerWidth)
+  const [openNotifications, setOpenNotifications] = useState(false)
+  const isMobile = windowWidth < 768
 
   useEffect(() => {
     function handleResize() {
@@ -85,23 +121,34 @@ const Header = () => {
     return () => window.removeEventListener('resize', handleResize)
   }, [])
 
-  const isMobile = windowWidth < 769
-  const [user, loading, error] = useAuthState(auth)
-  const [activities, setActivities] = useState<number>()
-
   useEffect(() => {
     if (!user) return
     const activitiesCol = collection(db, 'users', user.uid, 'activities')
-    const q = query(activitiesCol, where('checked', '==', false))
-    const unsubscribe = onSnapshot(q, snapshot => {
-      setActivities(snapshot.docs.length)
-    })
+    const unsubscribe = () =>
+      onSnapshot(activitiesCol, snapshot => {
+        setActivities(snapshot.docs.map(s => s.data()) as IActivity[])
+      })
 
-    return unsubscribe
+    return unsubscribe()
   }, [user])
 
-  if (loading) return <div>Loading</div>
-  // else if (error || !user) return <div>Something went wrong</div>
+  const logout = () => {
+    signout()
+      .then(() => notifySuccess('Logged out'))
+      .catch(() => notifyFailure('Something went wrong'))
+  }
+
+  const getUncheckedActivitiesLength = () => {
+    return activities.filter(a => a.checked === false).length
+  }
+
+  const getSortedActivities = () => {
+    return orderBy(
+      activities,
+      ({ created_at }) => new Date(created_at.toDate()),
+      'desc'
+    )
+  }
 
   return (
     <HeaderStyled>
@@ -111,11 +158,31 @@ const Header = () => {
             <h1 className="fsize-3">Recipe app</h1>
           </Link>
           <div className="icons-wrapper">
+            <a href="https://github.com/Delsin8/recipe-app" className="fsize-2">
+              <BsGithub />
+            </a>
             {user && (
-              <Link to={`/activities/${user.uid}`} className="pos-relative">
+              <div
+                className="pos-relative"
+                onMouseEnter={() => {
+                  markActivities(user.uid).then(() =>
+                    setOpenNotifications(true)
+                  )
+                }}
+                onMouseLeave={() => setOpenNotifications(false)}
+              >
                 <BiNews className="icon bell fsize-3" />
-                <div className="notifications-amount">{activities}</div>
-              </Link>
+                <div className="notifications-amount">
+                  {getUncheckedActivitiesLength()}
+                </div>
+                {openNotifications && (
+                  <div className="activity-window flex direction-column gap-medium">
+                    {getSortedActivities().map(a => (
+                      <Activity key={uuidv4()} {...a} userImg={user.photoURL} />
+                    ))}
+                  </div>
+                )}
+              </div>
             )}
             <div className="pos-relative">
               <FiMenu
@@ -127,15 +194,24 @@ const Header = () => {
                   <Link to="/recipes" className="menu-item">
                     Browse Recipes
                   </Link>
-                  <Link to="/recipes?user=me" className="menu-item">
+                  <Link
+                    to={`${user?.uid ? `/collection/${user?.uid}` : '/signin'}`}
+                    className="menu-item"
+                  >
                     My Collection
+                  </Link>
+                  <Link
+                    to={`${user ? '/recipes/create' : '/signin'}`}
+                    className="menu-item"
+                  >
+                    Create Recipe
                   </Link>
                   {user ? (
                     <>
-                      <Link to="/user" className="menu-item">
+                      <Link to={`/user/${user.uid}`} className="menu-item">
                         Profile
                       </Link>
-                      <div onClick={signout} className="menu-item pointer">
+                      <div onClick={logout} className="menu-item pointer">
                         Log out
                       </div>
                     </>
@@ -166,25 +242,56 @@ const Header = () => {
             <h1 className="fsize-3">Recipe app</h1>
           </Link>
           <div className="desktop-wrapper flex align-center gap-large">
+            <a
+              href="https://github.com/Delsin8/recipe-app"
+              className="flex align-center fsize-2"
+            >
+              <BsGithub />
+            </a>
             <Link to="/recipes">
               <div className="pointer">Browse Recipes</div>
             </Link>
-            <Link to="/recipes?user=me">
+            <Link to={`${user?.uid ? `/collection/${user?.uid}` : '/signin'}`}>
               <div className="pointer">My collection</div>
+            </Link>
+            <Link
+              to={`${user ? '/recipes/create' : '/signin'}`}
+              className="pointer"
+            >
+              Create Recipe
             </Link>
             <div className="flex align-center gap-medium">
               {user ? (
                 <>
-                  <Link
-                    to={`/activities/${user.uid}`}
-                    className="pointer flex align-center"
+                  <div
+                    className="pos-relative pointer flex align-center"
+                    onMouseEnter={() => {
+                      markActivities(user.uid).then(() =>
+                        setOpenNotifications(true)
+                      )
+                    }}
+                    onMouseLeave={() => setOpenNotifications(false)}
                   >
-                    <BiNews />
-                  </Link>
-                  <Link to="/user">
+                    <BiNews className="icon bell fsize-3" />
+                    <div className="notifications-amount">
+                      {getUncheckedActivitiesLength()}
+                    </div>
+                    {openNotifications && (
+                      <div className="activity-window flex direction-column gap-medium">
+                        {getSortedActivities().map(a => (
+                          <Activity
+                            key={uuidv4()}
+                            {...a}
+                            userImg={user.photoURL}
+                          />
+                        ))}
+                      </div>
+                    )}
+                  </div>
+                  <Link to={`/user/${user.uid}`}>
                     <div className="pointer">Profile</div>
                   </Link>
-                  <div className="pointer" onClick={signout}>
+                  <div className="pointer" onClick={logout}>
                     Log out
                   </div>
                 </>

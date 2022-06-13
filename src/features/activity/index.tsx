@@ -1,9 +1,24 @@
 import { Link } from 'react-router-dom'
 import styled from 'styled-components'
+import { default_user_photo } from '../../custom-data'
 import { IActivity } from '../../types'
 
-const ActivityStyled = styled.div``
-type d = '1' | '2'
+const ActivityStyled = styled.div`
+  .profile-picture {
+    height: 40px;
+    width: 40px;
+
+    img {
+      height: 100%;
+      width: 100%;
+      border-radius: 0.25rem;
+    }
+  }
+
+  .activity-body {
+    white-space: nowrap;
+  }
+`
 const Activity: React.FC<IActivity & { userImg?: string | null }> = ({
   type,
   other,
@@ -16,7 +31,7 @@ const Activity: React.FC<IActivity & { userImg?: string | null }> = ({
       body = (
         <div>
           Liked a{' '}
-          <Link to={`/recipe/${other}`} className="link frame">
+          <Link to={`/recipe/${other}`} className="link frame frame-brown">
             recipe
           </Link>
         </div>
@@ -27,7 +42,7 @@ const Activity: React.FC<IActivity & { userImg?: string | null }> = ({
       body = (
         <div>
           Created{' '}
-          <Link to={`/recipe/${other}`} className="link frame">
+          <Link to={`/recipe/${other}`} className="link frame frame-brown">
             recipe
           </Link>
         </div>
@@ -38,7 +53,7 @@ const Activity: React.FC<IActivity & { userImg?: string | null }> = ({
       body = (
         <div>
           Added
-          <Link to={`/recipe/${other}`} className="link frame">
+          <Link to={`/recipe/${other}`} className="link frame frame-brown">
             recipe
           </Link>
           to collection
@@ -50,7 +65,7 @@ const Activity: React.FC<IActivity & { userImg?: string | null }> = ({
       body = (
         <div>
           Subscribed to{' '}
-          <Link to={`/user/${other}`} className="link frame">
+          <Link to={`/user/${other}`} className="link frame frame-brown">
             user
           </Link>
         </div>
@@ -64,15 +79,12 @@ const Activity: React.FC<IActivity & { userImg?: string | null }> = ({
 
   return (
     <ActivityStyled className="flex align-center gap-small">
-      {/* picture */}
       <div className="profile-picture">
-        <img src={userImg || 'DEFAULT IMAGE'} />
+        <img src={userImg || default_user_photo} />
       </div>
-      {/* event */}
-      <div className="fsize-negative-2">
+      <div className="activity-body">
         <span>{body}</span>
-        {/* time */}
-        <span className="fsize-negative-3" style={{ opacity: '.75' }}>
+        <span className="fsize-negative-2" style={{ opacity: '.75' }}>
           {' '}
           {created_at &&
             `${created_at.toDate().toLocaleTimeString()} ${created_at

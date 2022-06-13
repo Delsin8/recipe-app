@@ -1,4 +1,3 @@
-import React from 'react'
 import { ThemeProvider } from 'styled-components'
 import theme from './styles/Theme'
 import RecipePage from './pages/Recipe/RecipePage'
@@ -14,6 +13,8 @@ import SigninPage from './pages/Auth/SigninPage'
 import SignupPage from './pages/Auth/SignupPage'
 import CreateRecipePage from './pages/CreateRecipe/CreateRecipePage'
 import NotFoundPage from './pages/404/NotFoundPage'
+import CollectionPage from './pages/Collection/CollectionPage'
+import { ToastContainer } from 'react-toastify'
 
 function App() {
   return (
@@ -26,6 +27,7 @@ function App() {
         <Route path="/recipe/:id/comments" element={<CommentsPage />} />
         <Route path="/recipes" element={<RecipesPage />} />
         <Route path="/recipes/create" element={<CreateRecipePage />} />
+        <Route path="/collection/:id" element={<CollectionPage />} />
         {/* <Route path="/user" element={<UserPage />} /> */}
         <Route path="/user/:id" element={<UserPage />} />
         <Route path="/signup" element={<SignupPage />} />
@@ -34,6 +36,7 @@ function App() {
 
         <Route path="*" element={<NotFoundPage />} />
       </Routes>
+      <ToastContainer />
     </ThemeProvider>
   )
 }

@@ -5,12 +5,20 @@ import { signinWithEmailAndPassword } from '../../app/firebase'
 import { useState } from 'react'
 import { Link } from 'react-router-dom'
 import { gradient } from '../../custom-data'
+import { notifyFailure, notifySuccess } from '../../components/toast'
 
 const SigninPage = () => {
   const [email, setEmail] = useState('')
   const [password, setPassword] = useState('')
+
   const signin = () => {
     signinWithEmailAndPassword(email, password)
+      .then(() => notifySuccess('Successfully logged in'))
+      .catch(() =>
+        notifyFailure(
+          'Something went wrong. Perhaps try again with different credentials'
+        )
+      )
   }
   return (
     <Layout>

@@ -50,7 +50,10 @@ body {
     .frame {
         background: #F3DFC1;
         padding: 1px 2px;
-    } 
+    }
+    .frame-brown {
+        background: #87664f60;
+    }
 
     // flex
     .flex {

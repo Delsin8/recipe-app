@@ -14,6 +14,7 @@ const AuthStyled = styled.div`
     border-bottom: 0.5px solid #000000a6;
 
     input {
+      width: 100%;
       background: none;
       outline: none;
       border: none;
@@ -27,6 +28,10 @@ const AuthStyled = styled.div`
         letter-spacing: 0.5px;
       }
     }
+  }
+
+  @media (min-width: 768px) {
+    margin-top: 3rem;
   }
 `
 

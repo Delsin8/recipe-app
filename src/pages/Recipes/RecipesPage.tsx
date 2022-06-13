@@ -4,7 +4,6 @@ import Layout from '../../components/layout'
 import { ImEye, ImEyeBlocked } from 'react-icons/im'
 import { IFilter, IRecipe, IUser } from '../../types'
 import { getFilteredRecipes } from '../../functions/filter'
-// firestore
 import { fetchRecipes, fetchUsers } from '../../app/firebase'
 import RecipesPageStyled from './RecipesPageStyled'
 import Filter from '../../features/filter'

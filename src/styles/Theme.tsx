@@ -9,15 +9,8 @@ const theme = {
     black: '#000000',
     white: '#ffffff',
   },
-  breakingPoints: {
-    sm: '576px',
-    md: '768px',
-    lg: '992px',
-    xl: '1200px',
-    xxl: '1400px',
-  },
   borderRadius: {
-    default: '16px',
+    default: '1rem',
   },
 }
 

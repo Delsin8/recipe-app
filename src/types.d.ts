@@ -6,7 +6,7 @@ export interface IRecipe {
   cooking_time: number
   difficulty: string
   portion: number
-  author?: DocumentReference
+  author?: string
   photo?: string
   ingredients?: IngredientInterface[]
   steps?: string[]

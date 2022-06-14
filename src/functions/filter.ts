@@ -68,7 +68,7 @@ const isShowByUser = (recipe: IRecipe, filters: IFilter[]) => {
   const userFilter = filters.filter(f => f.type === 'user')
   if (!userFilter.length) return true
   const user = userFilter.some(u => {
-    return recipe.author?.id === u.value || ''
+    return recipe.author === u.value || ''
   })
 
   if (user) return true

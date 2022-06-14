@@ -1,4 +1,3 @@
-import { ReactNode } from 'react'
 import styled from 'styled-components'
 import Recipe from '.'
 import { IRecipe } from '../../types'

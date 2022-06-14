@@ -23,8 +23,6 @@ const RecipeStyled = styled.div<{ isStatic?: boolean }>`
 const Recipe: React.FC<IRecipe & { isStatic?: boolean }> = ({
   id,
   name,
-  cooking_time,
-  difficulty,
   photo,
   isStatic,
 }) => {

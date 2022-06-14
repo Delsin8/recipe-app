@@ -8,7 +8,8 @@ import { IoPeopleOutline } from 'react-icons/io5'
 import Button from '../../components/button'
 import Ingredient from '../../features/recipe/Ingredient'
 import { gradient, custom_tags } from '../../custom-data'
-import { createActivity, createRecipe } from '../../app/firebase'
+import { createRecipe } from '../../app/calls/recipes'
+import { createActivity } from '../../app/calls/activities'
 import { notifyFailure, notifySuccess } from '../../components/toast'
 
 const CreateRecipePageStyled = styled.div`

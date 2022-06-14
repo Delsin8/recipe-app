@@ -1,7 +1,7 @@
 import Layout from '../../components/layout'
 import AuthStyled from './AuthStyled'
 import Button from '../../components/button'
-import { signupWithEmailAndPassword } from '../../app/firebase'
+import { signupWithEmailAndPassword } from '../../app/calls/users'
 import { useState } from 'react'
 import { Link } from 'react-router-dom'
 import { gradient } from '../../custom-data'

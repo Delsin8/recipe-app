@@ -14,6 +14,7 @@ export interface IRecipe {
   tags?: string[]
   likes?: number
   dislikes?: number
+  created_at?: Timestamp
 }
 
 export interface IngredientInterface {

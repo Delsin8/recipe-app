@@ -2,14 +2,10 @@ import styled from 'styled-components'
 import Layout from '../../components/layout'
 import Button from '../../components/button'
 import { useAuthState } from 'react-firebase-hooks/auth'
-import db, {
-  auth,
-  createActivity,
-  fetchUser,
-  getAmountOfRecipes,
-  subscribeToUser,
-  uploadImage,
-} from '../../app/firebase'
+import db, { auth } from '../../app/firebase'
+import { createActivity } from '../../app/calls/activities'
+import { getAmountOfRecipes } from '../../app/calls/recipes'
+import { subscribeToUser, uploadImage } from '../../app/calls/users'
 import { useEffect, useState } from 'react'
 import { useNavigate, useParams } from 'react-router-dom'
 import { IUser } from '../../types'
@@ -34,9 +30,7 @@ const UserPageStyled = styled.div`
     justify-content: space-around;
 
     input {
-      //
       width: 35%;
-      //
       background: none;
       border: none;
       font-size: 1.25rem;
@@ -63,7 +57,7 @@ const UserPage = () => {
     const userRef = doc(db, 'users', id)
     const unsubscribe = () =>
       onSnapshot(userRef, snap => {
-        getAmountOfRecipes(snap?.ref).then(r => setRecipesAmount(r))
+        getAmountOfRecipes(snap?.id).then(r => setRecipesAmount(r))
         setUser(snap?.data() as IUser)
         setLoading(false)
       })
@@ -112,10 +106,6 @@ const UserPage = () => {
         <div>
           <h3 className="inline-block frame">Featured recipes</h3>
           {/* <Recipes recipes={[{ name: 'd' },/ { name: 'd' }, { name: 'd' }]} /> */}
-        </div>
-        <div>
-          <h3 className="inline-block frame">Last added to collection</h3>
-          {/* <Recipes recipes={[{ name: 'd' }]} /> */}
         </div>
         <div className="flex justify-center gap-small">
           {!doesBelongToCurrentUser && (

@@ -10,10 +10,9 @@ import styled from 'styled-components'
 import { default_user_photo } from '../../custom-data'
 
 const FilterStyled = styled.div`
-  //
   margin: 0 auto;
   width: 90%;
-  //
+
   padding: 1rem;
   background-color: ${({ theme }) => theme.colors.wheat};
   border-radius: 1rem;

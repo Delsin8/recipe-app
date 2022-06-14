@@ -4,7 +4,8 @@ import Layout from '../../components/layout'
 import { ImEye, ImEyeBlocked } from 'react-icons/im'
 import { IFilter, IRecipe, IUser } from '../../types'
 import { getFilteredRecipes } from '../../functions/filter'
-import { fetchRecipes, fetchUsers } from '../../app/firebase'
+import { fetchUsers } from '../../app/calls/users'
+import { fetchRecipes } from '../../app/calls/recipes'
 import RecipesPageStyled from './RecipesPageStyled'
 import Filter from '../../features/filter'
 import Pagination from '../../features/pagination'
@@ -19,7 +20,7 @@ const RecipesPage = () => {
   const [filterOpen, setFilterOpen] = useState(true)
 
   useEffect(() => {
-    fetchRecipes()
+    fetchRecipes(false)
       .then(r => setRecipes(r))
       .then(() => fetchUsers().then(u => setUsers(u)))
       .then(() => setLoading(false))
